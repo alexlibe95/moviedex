@@ -3,12 +3,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { MovieCardComponent } from '../../shared/components/movie-card/movie-card.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-search',
@@ -17,10 +17,10 @@ import { DatePipe } from '@angular/common';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     ReactiveFormsModule,
-    DatePipe,
+    MovieCardComponent,
+    RouterLink,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',

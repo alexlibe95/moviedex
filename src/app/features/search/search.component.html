@@ -1,16 +1,64 @@
-<div class="flex flex-col w-full h-full">
-  <mat-toolbar class="sticky top-0 z-10">
+<div class="sticky top-0 z-10">
+  <mat-toolbar style="min-height: 64px">
     <div class="text-2xl font-semibold">Moviedex</div>
   </mat-toolbar>
-
-  <div class="flex flex-col justify-center items-center w-full flex-1">
-    <mat-form-field
-      class="flex justify-center items-center md:w-1/2 md:px-0 px-6 w-full"
-      appearance="outline"
-    >
-      <mat-icon matPrefix>search</mat-icon>
-      <input matInput type="text" placeholder="Search for a movie" />
-    </mat-form-field>
-    <button mat-raised-button>Search</button>
+</div>
+<div class="flex flex-col w-full overflow-y-scroll" style="height: calc(100vh - 64px)">
+  <div
+    class="sticky top-0 z-10 flex flex-col justify-center items-center w-full bg-black/85"
+    style="min-height: 156px"
+  >
+    <form (submit)="onSearch($event)" class="md:w-1/2 md:px-0 px-6 w-full">
+      <mat-form-field class="flex justify-center items-center w-full" appearance="outline">
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          type="text"
+          placeholder="Search for a movie"
+          [formControl]="searchControl"
+          [required]="true"
+        />
+      </mat-form-field>
+      <button mat-raised-button type="submit" class="w-full">Search</button>
+    </form>
+  </div>
+  <div class="flex flex-wrap gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    @for (movie of searchResults(); track movie.id) {
+      <mat-card class="movie-card">
+        <mat-card-header>
+          <mat-card-title class="line-clamp-2">{{ movie.title }}</mat-card-title>
+          <mat-card-subtitle>
+            {{ movie.release_date ? (movie.release_date | date: 'yyyy') : 'Unknown year' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        @if (movie.poster_path) {
+          <img
+            mat-card-image
+            [src]="'https://image.tmdb.org/t/p/w500' + movie.poster_path"
+            [alt]="movie.title + ' poster'"
+            class="h-64 object-cover"
+          />
+        } @else {
+          <div
+            class="h-64 flex items-center justify-center"
+            style="background-color: var(--mat-sys-surface-variant)"
+          >
+            <mat-icon class="text-6xl" style="color: var(--mat-sys-on-surface-variant)">
+              movie
+            </mat-icon>
+          </div>
+        }
+        <mat-card-content>
+          <p class="line-clamp-3 text-sm" style="color: var(--mat-sys-on-surface-variant)">
+            {{ movie.overview || 'No overview available.' }}
+          </p>
+          <div class="flex items-center gap-2 mt-4">
+            <mat-icon class="text-yellow-500">star</mat-icon>
+            <span class="font-medium">{{ movie.vote_average.toFixed(1) }}/10</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
   </div>
 </div>

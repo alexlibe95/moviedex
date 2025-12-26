@@ -9,6 +9,8 @@
 
 html {
   height: 100%;
+  overflow-y: hidden;
+  min-width: 300px;
   @include mat.theme((
     color: (
       primary: mat.$azure-palette,

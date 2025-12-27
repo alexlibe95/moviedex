@@ -1,0 +1,23 @@
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+  <div>
+    <p class="text-sm text-gray-400 mb-1">Budget</p>
+    <p class="font-semibold">
+      {{ movie().budget > 0 ? '$' + (movie().budget | number: '1.0-0') : 'N/A' }}
+    </p>
+  </div>
+  <div>
+    <p class="text-sm text-gray-400 mb-1">Revenue</p>
+    <p class="font-semibold">
+      {{ movie().revenue > 0 ? '$' + (movie().revenue | number: '1.0-0') : 'N/A' }}
+    </p>
+  </div>
+  <div>
+    <p class="text-sm text-gray-400 mb-1">Languages</p>
+    <p class="font-semibold">{{ languages() }}</p>
+  </div>
+  <div>
+    <p class="text-sm text-gray-400 mb-1">Release Date</p>
+    <p class="font-semibold">{{ movie().release_date | date: 'mediumDate' }}</p>
+  </div>
+</div>
+

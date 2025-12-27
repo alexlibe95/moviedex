@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { vi } from 'vitest';
 
 import { MovieDetailsComponent, MovieDetailsDialogData } from './movie-details.component';
 import { MovieDetails } from '../../core/models/movie-details.model';
@@ -32,11 +34,13 @@ describe('MovieDetailsComponent', () => {
 
   beforeEach(() => {
     dialogRef = {
-      close: () => {},
+      close: () => {
+        return;
+      },
     } as MatDialogRef<MovieDetailsComponent>;
 
     TestBed.configureTestingModule({
-      imports: [MovieDetailsComponent],
+      imports: [MovieDetailsComponent, NoopAnimationsModule],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -73,23 +77,17 @@ describe('MovieDetailsComponent', () => {
     expect(component.isLoading()).toBe(false);
   });
 
-  it('should compute languages correctly', () => {
+  it('should handle rating submission', () => {
     component.movieDetails.set(mockMovieDetails);
     fixture.detectChanges();
 
-    expect(component.languages()).toBe('English');
-  });
-
-  it('should return N/A for languages when empty', () => {
-    const emptyDetails = { ...mockMovieDetails, spoken_languages: [] };
-    component.movieDetails.set(emptyDetails);
-    fixture.detectChanges();
-
-    expect(component.languages()).toBe('N/A');
+    expect(component.userRating()).toBeNull();
+    component.onRatingSubmitted(8);
+    expect(component.userRating()).toBe(8);
   });
 
   it('should close dialog when close is called', () => {
-    const closeSpy = spyOn(dialogRef, 'close');
+    const closeSpy = vi.spyOn(dialogRef, 'close');
     component.close();
     expect(closeSpy).toHaveBeenCalled();
   });

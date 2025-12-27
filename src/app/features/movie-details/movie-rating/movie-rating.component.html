@@ -1,0 +1,46 @@
+<div class="movie-rating-container">
+  <h3 class="text-lg font-semibold mb-3">Rate this movie</h3>
+  
+  <div class="flex flex-col gap-3">
+    <div class="flex items-center gap-1">
+      @for (star of [1, 2, 3, 4, 5]; track star) {
+        <button
+          mat-icon-button
+          type="button"
+          (click)="selectStars(star)"
+          [attr.aria-label]="'Rate ' + star + ' out of 5 stars'"
+          class="star-button"
+        >
+          <mat-icon class="star-icon">
+            {{ star <= (selectedStars() || 0) ? 'star' : 'star_border' }}
+          </mat-icon>
+        </button>
+      }
+    </div>
+
+    @if (selectedStars(); as stars) {
+      <div class="flex items-center gap-3">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="submitRating()"
+          [disabled]="isRating()"
+          class="submit-button"
+        >
+          @if (isRating()) {
+            <mat-spinner diameter="16" class="mr-2"></mat-spinner>
+            Submitting...
+          } @else {
+            Submit
+          }
+        </button>
+        @if (currentRating()) {
+          <span class="text-sm text-gray-400">
+            Your rating: {{ Math.round(currentRating()! / 2) }}/5
+          </span>
+        }
+      </div>
+    }
+  </div>
+</div>
+

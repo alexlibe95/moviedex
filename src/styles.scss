@@ -8,8 +8,12 @@
 
 html {
   height: 100%;
-  overflow-y: hidden;
+  overflow-y: hidden; // Prevent html scroll, let main-content handle it
   min-width: 300px;
+  // Fix for mobile viewport
+  -webkit-text-size-adjust: 100%;
+  position: fixed;
+  width: 100%;
   @include mat.theme(
     (
       color: (
@@ -43,6 +47,9 @@ body {
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
+  overflow: hidden; // Prevent body scroll, let main-content handle it
+  position: fixed;
+  width: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
 .mat-mdc-dialog-surface {

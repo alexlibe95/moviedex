@@ -3,6 +3,9 @@
   width: 100%;
   min-height: 100%;
   position: relative;
+  // Ensure no scroll container conflicts
+  overflow: visible;
+  touch-action: pan-y;
 }
 
 .search-form-container {

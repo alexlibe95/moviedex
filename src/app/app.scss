@@ -1,0 +1,18 @@
+.main-content {
+  // Ensure smooth scrolling on mobile
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+  
+  // Prevent horizontal scroll
+  overflow-x: hidden;
+  
+  // Fix for mobile viewport height (iOS Safari)
+  @supports (-webkit-touch-callout: none) {
+    height: -webkit-fill-available;
+  }
+  
+  // Ensure proper scrolling behavior
+  will-change: scroll-position;
+  transform: translateZ(0); // Force hardware acceleration
+}

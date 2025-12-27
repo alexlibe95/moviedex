@@ -68,13 +68,13 @@ describe('ToolbarComponent', () => {
     expect(component.showBackButton()).toBe(false);
   });
 
-  it('should hide back button when on movie route', () => {
+  it('should show back button when on movie route', () => {
     mockRouter.url = '/movie/123';
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.showBackButton()).toBe(false);
+    expect(component.showBackButton()).toBe(true);
   });
 
   it('should navigate to root when goBack is called', () => {

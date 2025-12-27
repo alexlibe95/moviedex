@@ -79,7 +79,6 @@ export class CollectionDetailsComponent implements OnInit {
           const filteredIds = new Set([...currentIds].filter((id) => validIds.has(id)));
           if (filteredIds.size !== currentIds.size) {
             this.selectedMovieIds.set(filteredIds);
-            // selectedMovies is computed, so it will update automatically
           }
         }
       }

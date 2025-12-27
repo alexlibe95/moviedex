@@ -1,0 +1,56 @@
+<div class="min-w-[400px]">
+  <h2 mat-dialog-title>Add Movies to Collection</h2>
+
+  <mat-dialog-content>
+    <div class="flex flex-col gap-4 pt-6">
+      <p class="m-0 text-sm text-gray-600">
+        Select a collection to add {{ movies.length }} movie{{ movies.length > 1 ? 's' : '' }} to.
+      </p>
+
+      @if (collections().length > 0) {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Select Collection</mat-label>
+          <mat-select [value]="selectedCollectionId()" (selectionChange)="selectedCollectionId.set($event.value)">
+            @for (collection of collections(); track collection.id) {
+              <mat-option [value]="collection.id">
+                {{ collection.name }}
+                <span class="text-gray-500 text-sm ml-2">
+                  ({{ collection.movies.length }} {{ collection.movies.length === 1 ? 'movie' : 'movies' }})
+                </span>
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      } @else {
+        <div class="flex flex-col items-center justify-center py-8 text-center">
+          <mat-icon class="text-6xl mb-4 text-gray-400">folder_open</mat-icon>
+          <p class="m-0 text-gray-600">No collections available. Create one to get started!</p>
+        </div>
+      }
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="onCreateNewCollection()"
+        class="w-full"
+      >
+        <mat-icon>add</mat-icon>
+        Create New Collection
+      </button>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" type="button">Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onAdd()"
+      type="button"
+      [disabled]="!selectedCollectionId()"
+    >
+      Add Movies
+    </button>
+  </mat-dialog-actions>
+</div>
+

@@ -19,4 +19,6 @@ export class SearchResultsComponent {
   readonly pageSize = input(20);
   readonly pageSizeOptions = input<number[]>([20, 40, 60, 100]);
   readonly pageChange = output<PageEvent>();
+  readonly selectedMovieIds = input<Set<number>>(new Set());
+  readonly movieSelectionToggle = output<Movie>();
 }

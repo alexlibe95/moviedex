@@ -42,7 +42,24 @@
     [currentPage]="currentPage()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="[20, 40, 60, 100]"
+    [selectedMovieIds]="selectedMovieIds()"
     (pageChange)="onPageChange($event)"
+    (movieSelectionToggle)="onMovieSelectionToggle($event)"
     class="flex-1"
   />
 </div>
+
+@if (selectedMovies().length > 0) {
+  <button
+    mat-fab
+    color="primary"
+    (click)="openAddToCollectionDialog()"
+    [matBadge]="selectedMovies().length"
+    matBadgePosition="above before"
+    matBadgeColor="accent"
+    [attr.aria-label]="'Add ' + selectedMovies().length + ' selected movies to collection'"
+    style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+}

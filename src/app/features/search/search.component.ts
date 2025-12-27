@@ -3,15 +3,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 
 import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
 import { AlphanumericMinLengthDirective } from '../../core/directives/alphanumeric-min-length.directive';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { SearchStateService } from '../../core/services/search-state.service';
+import { CollectionsService } from '../../core/services/collections.service';
+import { AddToCollectionDialogComponent } from './add-to-collection-dialog/add-to-collection-dialog.component';
 
 @Component({
   selector: 'app-search',
@@ -20,6 +26,8 @@ import { SearchStateService } from '../../core/services/search-state.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    MatBadgeModule,
+    MatTooltipModule,
     ReactiveFormsModule,
     AlphanumericMinLengthDirective,
     SearchResultsComponent,
@@ -30,6 +38,9 @@ import { SearchStateService } from '../../core/services/search-state.service';
 export class SearchComponent implements OnInit, OnDestroy {
   private readonly tmdbService = inject(TmdbService);
   private readonly searchStateService = inject(SearchStateService);
+  private readonly collectionsService = inject(CollectionsService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly destroy$ = new Subject<void>();
 
   protected readonly searchControl = new FormControl('', [Validators.required]);
@@ -40,6 +51,10 @@ export class SearchComponent implements OnInit, OnDestroy {
   readonly totalResults = signal(0);
   readonly currentPage = signal(0);
   readonly pageSize = signal(20);
+
+  // Selection state
+  readonly selectedMovieIds = signal<Set<number>>(new Set());
+  readonly selectedMovies = signal<Movie[]>([]);
 
   // Scroll state
   readonly isFormVisible = signal(true);
@@ -135,5 +150,72 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     this.lastScrollTop = scrollTop;
+  }
+
+  onMovieSelectionToggle(movie: Movie): void {
+    const currentIds = new Set(this.selectedMovieIds());
+    if (currentIds.has(movie.id)) {
+      currentIds.delete(movie.id);
+    } else {
+      currentIds.add(movie.id);
+    }
+    this.selectedMovieIds.set(currentIds);
+    this.updateSelectedMovies();
+  }
+
+  private updateSelectedMovies(): void {
+    const ids = this.selectedMovieIds();
+    const movies = this.searchResults().filter((m) => ids.has(m.id));
+    this.selectedMovies.set(movies);
+  }
+
+  async openAddToCollectionDialog(): Promise<void> {
+    const selectedMovies = this.selectedMovies();
+    if (selectedMovies.length === 0) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AddToCollectionDialogComponent, {
+      width: '500px',
+      data: { movies: selectedMovies },
+    });
+
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (result && result.collectionId) {
+      const collection = this.collectionsService.getCollection(result.collectionId);
+      if (collection) {
+        let addedCount = 0;
+        let skippedCount = 0;
+
+        for (const movie of selectedMovies) {
+          const success = this.collectionsService.addMovieToCollection(result.collectionId, movie);
+          if (success) {
+            addedCount++;
+          } else {
+            skippedCount++;
+          }
+        }
+
+        if (addedCount > 0) {
+          this.snackBar.open(
+            `Added ${addedCount} movie${addedCount > 1 ? 's' : ''} to "${collection.name}"`,
+            'Close',
+            { duration: 3000 }
+          );
+        }
+
+        if (skippedCount > 0) {
+          this.snackBar.open(
+            `${skippedCount} movie${skippedCount > 1 ? 's were' : ' was'} already in the collection`,
+            'Close',
+            { duration: 3000 }
+          );
+        }
+
+        // Clear selection
+        this.selectedMovieIds.set(new Set());
+        this.updateSelectedMovies();
+      }
+    }
   }
 }

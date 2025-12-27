@@ -1,4 +1,4 @@
-import { Component, input, inject } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -22,6 +22,8 @@ export class MovieListComponent {
   readonly movies = input.required<Movie[]>();
   readonly isLoading = input<boolean | null>(null);
   readonly emptyMessage = input<string>('No movies found');
+  readonly selectedMovieIds = input<Set<number>>(new Set());
+  readonly movieSelectionToggle = output<Movie>();
 
   openMovieDetails(movieId: number): void {
     // Open dialog directly without navigation
@@ -34,11 +36,12 @@ export class MovieListComponent {
     });
   }
 
-  handleKeydown(event: KeyboardEvent, movieId: number): void {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      this.openMovieDetails(movieId);
-    }
+  onMovieSelectionToggle(movie: Movie): void {
+    this.movieSelectionToggle.emit(movie);
+  }
+
+  isMovieSelected(movieId: number): boolean {
+    return this.selectedMovieIds().has(movieId);
   }
 }
 

@@ -8,6 +8,8 @@
       [movies]="searchResults()"
       [isLoading]="isLoading()"
       [emptyMessage]="'No results found'"
+      [selectedMovieIds]="selectedMovieIds()"
+      (movieSelectionToggle)="movieSelectionToggle.emit($event)"
     />
     @if (searchResults().length > 0 || isLoading() === false) {
       <app-pagination

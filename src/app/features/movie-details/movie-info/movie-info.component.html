@@ -1,0 +1,21 @@
+<div class="flex flex-col md:flex-row gap-6">
+  @if (movie().poster_path) {
+    <img
+      [src]="tmdbImageUrl + movie().poster_path"
+      [alt]="movie().title + ' poster'"
+      class="w-full md:w-64 h-auto rounded-lg object-cover"
+    />
+  }
+  <div class="flex-1">
+    <h3 class="text-3xl font-bold mb-2">{{ movie().title }}</h3>
+    <p class="text-gray-400 mb-4">{{ movie().release_date | date: 'longDate' }}</p>
+    <div class="flex items-center gap-4 mb-4">
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-yellow-500">star</mat-icon>
+        <span class="font-semibold">{{ movie().vote_average.toFixed(1) }}/10</span>
+      </div>
+      <span class="text-gray-400">({{ movie().vote_count }} votes)</span>
+    </div>
+    <p class="text-lg leading-relaxed">{{ movie().overview }}</p>
+  </div>
+</div>

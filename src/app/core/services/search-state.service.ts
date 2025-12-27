@@ -32,4 +32,3 @@ export class SearchStateService {
     return this.state() !== null;
   }
 }
-

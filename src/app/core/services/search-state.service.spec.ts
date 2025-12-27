@@ -123,4 +123,3 @@ describe('SearchStateService', () => {
     expect(state?.pageSize).toBe(40);
   });
 });
-

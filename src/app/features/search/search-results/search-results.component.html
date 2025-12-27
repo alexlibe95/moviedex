@@ -10,9 +10,16 @@
   <div class="flex flex-col gap-6 py-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
       @for (movie of searchResults(); track movie.id) {
-        <a [routerLink]="['movie', movie.id]" class="cursor-pointer">
+        <div
+          (click)="openMovieDetails(movie.id)"
+          (keydown)="handleKeydown($event, movie.id)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'View details for ' + movie.title"
+          class="cursor-pointer"
+        >
           <app-movie-card [movie]="movie" />
-        </a>
+        </div>
       }
     </div>
     <app-pagination
@@ -28,4 +35,3 @@
     <p>No results found</p>
   </div>
 }
-

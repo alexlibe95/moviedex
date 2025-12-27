@@ -2,7 +2,7 @@ import { Directive, HostListener, inject, input } from '@angular/core';
 import { NgControl } from '@angular/forms';
 
 @Directive({
-  selector: '[appAlphanumericMinLength]'
+  selector: '[appAlphanumericMinLength]',
 })
 export class AlphanumericMinLengthDirective {
   readonly minLength = input(3);
@@ -33,18 +33,18 @@ export class AlphanumericMinLengthDirective {
   onBlur(event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = input.value.trim();
-    
+
     // Mark as touched to show errors
     if (this.control?.control) {
       this.control.control.markAsTouched();
     }
-    
+
     this.validateMinLength(value);
   }
 
   private validateMinLength(value: string): void {
     const trimmedValue = value.trim();
-    
+
     if (this.control?.control) {
       if (trimmedValue.length > 0 && trimmedValue.length < this.minLength()) {
         const currentErrors = this.control.control.errors || {};
@@ -66,4 +66,3 @@ export class AlphanumericMinLengthDirective {
     }
   }
 }
-

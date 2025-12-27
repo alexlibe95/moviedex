@@ -52,8 +52,8 @@ describe('TmdbService', () => {
         expect(response.results.length).toBeGreaterThanOrEqual(0);
       });
 
-      const req = httpMock.expectOne((request) =>
-        request.url.includes('/search/movie') && request.params.get('query') === query
+      const req = httpMock.expectOne(
+        (request) => request.url.includes('/search/movie') && request.params.get('query') === query
       );
 
       expect(req.request.method).toBe('GET');
@@ -69,10 +69,11 @@ describe('TmdbService', () => {
         expect(response).toBeDefined();
       });
 
-      const req = httpMock.expectOne((request) =>
-        request.url.includes('/search/movie') &&
-        request.params.get('query') === query &&
-        request.params.get('page') === '2'
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url.includes('/search/movie') &&
+          request.params.get('query') === query &&
+          request.params.get('page') === '2'
       );
 
       req.flush(mockSearchResponse);
@@ -284,4 +285,3 @@ describe('TmdbService', () => {
     });
   });
 });
-

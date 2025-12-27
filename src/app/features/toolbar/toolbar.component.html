@@ -1,0 +1,11 @@
+<div class="sticky top-0 z-10">
+  <mat-toolbar style="min-height: 64px">
+    @if (!isRootRoute()) {
+      <button mat-icon-button (click)="goBack()" aria-label="Go back" type="button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    }
+    <div class="text-2xl font-semibold">Moviedex</div>
+  </mat-toolbar>
+</div>
+

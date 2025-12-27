@@ -1,0 +1,28 @@
+<mat-card class="w-full cursor-pointer" [matTooltip]="movie().title">
+  <mat-card-header class="w-full">
+    <mat-card-title>
+      {{ movie().title.length > 22 ? movie().title.slice(0, 22) + '...' : movie().title }}
+    </mat-card-title>
+  </mat-card-header>
+  @if (movie().poster_path) {
+    <img
+      mat-card-image
+      [src]="tmdbImageUrl + movie().poster_path"
+      [alt]="movie().title + ' poster'"
+      class="h-64 object-cover"
+    />
+  } @else {
+    <div
+      class="h-64 flex items-center justify-center"
+      style="background-color: var(--mat-sys-surface-variant)"
+    >
+      <mat-icon class="text-6xl" style="color: var(--mat-sys-on-surface-variant)"> movie </mat-icon>
+    </div>
+  }
+  <mat-card-content>
+    <div class="flex items-center gap-2 mt-4">
+      <mat-icon>star</mat-icon>
+      <span class="font-medium">{{ movie().vote_average.toFixed(1) }}/10</span>
+    </div>
+  </mat-card-content>
+</mat-card>

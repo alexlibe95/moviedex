@@ -1,0 +1,11 @@
+.movie-details-dialog {
+
+  mat-dialog-content {
+    max-height: 70vh;
+  }
+
+  img {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+

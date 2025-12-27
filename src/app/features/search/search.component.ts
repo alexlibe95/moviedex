@@ -1,16 +1,21 @@
-import { Component, inject, signal, HostListener, OnInit } from '@angular/core';
+import { Component, inject, signal, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
 import { AlphanumericMinLengthDirective } from '../../core/directives/alphanumeric-min-length.directive';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { SearchStateService } from '../../core/services/search-state.service';
+import { MovieDetailsComponent, MovieDetailsDialogData } from '../movie-details/movie-details.component';
 
 @Component({
   selector: 'app-search',
@@ -26,9 +31,14 @@ import { SearchStateService } from '../../core/services/search-state.service';
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent implements OnInit, OnDestroy {
   private readonly tmdbService = inject(TmdbService);
   private readonly searchStateService = inject(SearchStateService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly destroy$ = new Subject<void>();
+
   protected readonly searchControl = new FormControl('', [Validators.required]);
   readonly searchResults = signal<Movie[]>([]);
   readonly isLoading = signal<boolean | null>(null);
@@ -54,6 +64,45 @@ export class SearchComponent implements OnInit {
       this.pageSize.set(savedState.pageSize);
       this.isLoading.set(savedState.isLoading);
     }
+
+    // Listen for route param changes to open dialog when navigating to /movie/:id
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const movieId = params.get('id');
+      if (movieId) {
+        const id = parseInt(movieId, 10);
+        if (!isNaN(id)) {
+          // Small delay to ensure component is fully initialized
+          setTimeout(() => {
+            this.openMovieDialog(id);
+          }, 0);
+        }
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private openMovieDialog(movieId: number): void {
+    // Check if dialog is already open to prevent duplicates
+    if (this.dialog.openDialogs.length > 0) {
+      return;
+    }
+
+    const dialogData: MovieDetailsDialogData = { movieId };
+    const dialogRef = this.dialog.open(MovieDetailsComponent, {
+      data: dialogData,
+      width: '90vw',
+      maxWidth: '800px',
+      maxHeight: '90vh',
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      // Navigate back to root when dialog closes
+      this.router.navigate(['/'], { replaceUrl: true });
+    });
   }
 
   onSearch(page = 1): void {

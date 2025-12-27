@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { SearchComponent } from './features/search/search.component';
-import { MovieDetailsComponent } from './features/movie-details/movie-details.component';
 
 export const routes: Routes = [
   {
@@ -10,7 +9,6 @@ export const routes: Routes = [
   },
   {
     path: 'movie/:id',
-    component: MovieDetailsComponent,
-    pathMatch: 'full',
+    component: SearchComponent,
   },
 ];

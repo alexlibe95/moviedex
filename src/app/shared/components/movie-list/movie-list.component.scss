@@ -1,8 +1,0 @@
-:host {
-  display: block;
-  width: 100%;
-  // Ensure touch events work for scrolling
-  touch-action: pan-y;
-  pointer-events: auto;
-}
-

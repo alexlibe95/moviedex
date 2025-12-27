@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, HostListener } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +35,11 @@ export class SearchComponent {
   readonly totalResults = signal(0);
   readonly currentPage = signal(0);
   readonly pageSize = signal(20);
+  
+  // Scroll state
+  readonly isFormVisible = signal(true);
+  private lastScrollTop = 0;
+  private readonly scrollThreshold = 10; // Minimum scroll distance to trigger hide/show
 
   onSearch(page = 1): void {
     // Mark control as touched to show validation errors
@@ -78,5 +83,24 @@ export class SearchComponent {
       // Call search with the new page (API uses 1-based, mat-paginator uses 0-based)
       this.onSearch(event.pageIndex + 1);
     }
+  }
+
+  @HostListener('scroll', ['$event'])
+  onScroll(event: Event): void {
+    const target = event.target as HTMLElement;
+    const scrollTop = target.scrollTop;
+    
+    // Show form when at the top
+    if (scrollTop <= this.scrollThreshold) {
+      this.isFormVisible.set(true);
+    } else {
+      // Hide form when scrolling down, show when scrolling up
+      const scrollingDown = scrollTop > this.lastScrollTop;
+      if (Math.abs(scrollTop - this.lastScrollTop) > this.scrollThreshold) {
+        this.isFormVisible.set(!scrollingDown);
+      }
+    }
+    
+    this.lastScrollTop = scrollTop;
   }
 }

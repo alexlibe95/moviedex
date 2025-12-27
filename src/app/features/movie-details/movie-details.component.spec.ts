@@ -7,8 +7,8 @@ describe('MovieDetailsComponent', () => {
   let component: MovieDetailsComponent;
   let fixture: ComponentFixture<MovieDetailsComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [MovieDetailsComponent],
       providers: [
         {
@@ -27,7 +27,7 @@ describe('MovieDetailsComponent', () => {
           },
         },
       ],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(MovieDetailsComponent);
     component = fixture.componentInstance;

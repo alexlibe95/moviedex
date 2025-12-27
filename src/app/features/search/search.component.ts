@@ -8,7 +8,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
@@ -43,6 +43,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private currentDialogMovieId: number | null = null;
   private currentDialogRef: MatDialogRef<MovieDetailsComponent> | null = null;
+  private currentDialogSubscription: Subscription | null = null;
   private isReplacingDialog = false;
 
   protected readonly searchControl = new FormControl('', [Validators.required]);
@@ -82,13 +83,34 @@ export class SearchComponent implements OnInit, OnDestroy {
             this.openMovieDialog(id);
           }, 0);
         }
+      } else {
+        // If movieId is null, we've navigated away from /movie/:id - close the dialog
+        this.closeMovieDialog();
       }
     });
   }
 
   ngOnDestroy(): void {
+    // Clean up dialog when component is destroyed
+    this.closeMovieDialog();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private closeMovieDialog(): void {
+    // Unsubscribe from dialog's afterClosed to prevent callbacks
+    if (this.currentDialogSubscription) {
+      this.currentDialogSubscription.unsubscribe();
+      this.currentDialogSubscription = null;
+    }
+    // Close any open dialogs
+    if (this.currentDialogRef) {
+      this.currentDialogRef.close();
+      this.currentDialogRef = null;
+    }
+    // Clear tracking variables
+    this.currentDialogMovieId = null;
+    this.isReplacingDialog = false;
   }
 
   private openMovieDialog(movieId: number): void {
@@ -100,12 +122,18 @@ export class SearchComponent implements OnInit, OnDestroy {
     // If dialog is open for a different movie, close it first
     if (this.dialog.openDialogs.length > 0) {
       this.isReplacingDialog = true;
-      // Unsubscribe from previous dialog's afterClosed to prevent navigation
+      // Unsubscribe from previous dialog's afterClosed to prevent race condition
+      if (this.currentDialogSubscription) {
+        this.currentDialogSubscription.unsubscribe();
+        this.currentDialogSubscription = null;
+      }
+      // Close the previous dialog
       if (this.currentDialogRef) {
         this.currentDialogRef.close();
       } else {
         this.dialog.closeAll();
       }
+      // Clear tracking variables (subscription already unsubscribed above)
       this.currentDialogMovieId = null;
       this.currentDialogRef = null;
     }
@@ -122,10 +150,12 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.currentDialogMovieId = movieId;
     this.currentDialogRef = dialogRef;
 
-    dialogRef.afterClosed().subscribe(() => {
+    // Subscribe to afterClosed and store the subscription
+    this.currentDialogSubscription = dialogRef.afterClosed().subscribe(() => {
       // Clear the tracked movie ID and reference when dialog closes
       this.currentDialogMovieId = null;
       this.currentDialogRef = null;
+      this.currentDialogSubscription = null;
 
       // Only navigate back to root if we're not replacing the dialog
       if (!this.isReplacingDialog) {

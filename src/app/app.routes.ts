@@ -11,4 +11,8 @@ export const routes: Routes = [
     path: 'movie/:id',
     component: SearchComponent,
   },
+  {
+    path: '**',
+    redirectTo: '',
+  }
 ];

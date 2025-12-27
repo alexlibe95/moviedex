@@ -61,11 +61,8 @@ export class SearchComponent implements OnInit, OnDestroy {
     return movies.filter((m) => ids.has(m.id));
   });
 
-  // Scroll state
+  // Scroll state - simplified to always show form to avoid scroll performance issues
   readonly isFormVisible = signal(true);
-  private lastScrollTop = 0;
-  private readonly scrollThreshold = 10; // Minimum scroll distance to trigger hide/show
-  private scrollAnimationFrame: number | null = null;
 
   constructor() {
     // Clear selection when search results change (new search or page change)
@@ -99,9 +96,6 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.scrollAnimationFrame !== null) {
-      cancelAnimationFrame(this.scrollAnimationFrame);
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -160,31 +154,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  onScroll(event: Event): void {
-    // Use requestAnimationFrame to throttle scroll events and prevent blocking on mobile
-    if (this.scrollAnimationFrame !== null) {
-      return;
-    }
-
-    this.scrollAnimationFrame = requestAnimationFrame(() => {
-      const target = event.target as HTMLElement;
-      const scrollTop = target.scrollTop;
-
-      // Show form when at the top
-      if (scrollTop <= this.scrollThreshold) {
-        this.isFormVisible.set(true);
-      } else {
-        // Hide form when scrolling down, show when scrolling up
-        const scrollingDown = scrollTop > this.lastScrollTop;
-        if (Math.abs(scrollTop - this.lastScrollTop) > this.scrollThreshold) {
-          this.isFormVisible.set(!scrollingDown);
-        }
-      }
-
-      this.lastScrollTop = scrollTop;
-      this.scrollAnimationFrame = null;
-    });
-  }
 
   onMovieSelectionToggle(movie: Movie): void {
     const currentIds = new Set(this.selectedMovieIds());

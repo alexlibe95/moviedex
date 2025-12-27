@@ -1,5 +1,46 @@
 <div class="collections-container">
-  <h1>My Collections</h1>
-  <p>Your movie collections will appear here.</p>
+  <div class="collections-header">
+    <h1>My Collections</h1>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()" type="button">
+      <mat-icon>add</mat-icon>
+      Create Collection
+    </button>
+  </div>
+
+  @if (collections().length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+      <h2>No collections yet</h2>
+      <p>Create your first collection to start organizing your favorite movies!</p>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()" type="button">
+        <mat-icon>add</mat-icon>
+        Create Your First Collection
+      </button>
+    </div>
+  } @else {
+    <div class="collections-grid">
+      @for (collection of collections(); track collection.id) {
+        <mat-card class="collection-card">
+          <mat-card-header>
+            <mat-card-title>{{ collection.name }}</mat-card-title>
+            <mat-card-subtitle>
+              {{ getMovieCount(collection) }} {{ getMovieCount(collection) === 1 ? 'movie' : 'movies' }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="collection-description">
+              Created {{ collection.createdAt | date: 'mediumDate' }}
+            </p>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <button mat-button (click)="deleteCollection(collection)" type="button" color="warn">
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
 </div>
 

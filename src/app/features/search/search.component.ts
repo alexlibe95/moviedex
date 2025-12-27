@@ -1,4 +1,4 @@
-import { Component, inject, signal, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, HostListener, OnInit, OnDestroy, effect } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -54,12 +54,35 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   // Selection state
   readonly selectedMovieIds = signal<Set<number>>(new Set());
-  readonly selectedMovies = signal<Movie[]>([]);
+  // Use computed to automatically update when selectedMovieIds or searchResults change
+  readonly selectedMovies = computed(() => {
+    const ids = this.selectedMovieIds();
+    const movies = this.searchResults();
+    return movies.filter((m) => ids.has(m.id));
+  });
 
   // Scroll state
   readonly isFormVisible = signal(true);
   private lastScrollTop = 0;
   private readonly scrollThreshold = 10; // Minimum scroll distance to trigger hide/show
+
+  constructor() {
+    // Clear selection when search results change (new search or page change)
+    // This ensures selectedMovieIds only contains IDs from current search results
+    effect(() => {
+      const currentResults = this.searchResults();
+      const currentIds = this.selectedMovieIds();
+      
+      // Filter out any selected IDs that are no longer in the current search results
+      const validIds = new Set(currentResults.map((m) => m.id));
+      const filteredIds = new Set([...currentIds].filter((id) => validIds.has(id)));
+      
+      // Only update if there's a difference to avoid infinite loops
+      if (filteredIds.size !== currentIds.size) {
+        this.selectedMovieIds.set(filteredIds);
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Restore search state if available
@@ -160,13 +183,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       currentIds.add(movie.id);
     }
     this.selectedMovieIds.set(currentIds);
-    this.updateSelectedMovies();
-  }
-
-  private updateSelectedMovies(): void {
-    const ids = this.selectedMovieIds();
-    const movies = this.searchResults().filter((m) => ids.has(m.id));
-    this.selectedMovies.set(movies);
+    // selectedMovies is now computed, so it will update automatically
   }
 
   async openAddToCollectionDialog(): Promise<void> {
@@ -196,15 +213,20 @@ export class SearchComponent implements OnInit, OnDestroy {
           }
         }
 
-        if (addedCount > 0) {
+        // Combine messages if both conditions are true to avoid losing messages
+        if (addedCount > 0 && skippedCount > 0) {
+          this.snackBar.open(
+            `Added ${addedCount} movie${addedCount > 1 ? 's' : ''} to "${collection.name}". ${skippedCount} movie${skippedCount > 1 ? 's were' : ' was'} already in the collection.`,
+            'Close',
+            { duration: 4000 }
+          );
+        } else if (addedCount > 0) {
           this.snackBar.open(
             `Added ${addedCount} movie${addedCount > 1 ? 's' : ''} to "${collection.name}"`,
             'Close',
             { duration: 3000 }
           );
-        }
-
-        if (skippedCount > 0) {
+        } else if (skippedCount > 0) {
           this.snackBar.open(
             `${skippedCount} movie${skippedCount > 1 ? 's were' : ' was'} already in the collection`,
             'Close',
@@ -214,7 +236,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
         // Clear selection
         this.selectedMovieIds.set(new Set());
-        this.updateSelectedMovies();
+        // selectedMovies is computed, so it will update automatically
       }
     }
   }

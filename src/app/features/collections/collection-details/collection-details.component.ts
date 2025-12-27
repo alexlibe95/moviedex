@@ -159,15 +159,20 @@ export class CollectionDetailsComponent implements OnInit {
       }
     }
 
-    if (removedCount > 0) {
+    // Combine messages if both conditions are true to avoid losing messages
+    if (removedCount > 0 && notFoundCount > 0) {
+      this.snackBar.open(
+        `Removed ${removedCount} movie${removedCount > 1 ? 's' : ''} from "${collection.name}". ${notFoundCount} movie${notFoundCount > 1 ? 's were' : ' was'} not found in the collection.`,
+        'Close',
+        { duration: 4000 }
+      );
+    } else if (removedCount > 0) {
       this.snackBar.open(
         `Removed ${removedCount} movie${removedCount > 1 ? 's' : ''} from "${collection.name}"`,
         'Close',
         { duration: 3000 }
       );
-    }
-
-    if (notFoundCount > 0) {
+    } else if (notFoundCount > 0) {
       this.snackBar.open(
         `${notFoundCount} movie${notFoundCount > 1 ? 's were' : ' was'} not found in the collection`,
         'Close',

@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
 
 import { TmdbService } from '../../core/api/tmdb.service';
@@ -27,7 +27,7 @@ import { SearchResultsComponent } from './search-results/search-results.componen
 })
 export class SearchComponent {
   private readonly tmdbService = inject(TmdbService);
-  protected readonly searchControl = new FormControl('');
+  protected readonly searchControl = new FormControl('', [Validators.required]);
   readonly searchResults = signal<Movie[]>([]);
   readonly isLoading = signal<boolean | null>(null);
   

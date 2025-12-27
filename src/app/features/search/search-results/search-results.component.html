@@ -10,7 +10,7 @@
   <div class="flex flex-col gap-6 py-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
       @for (movie of searchResults(); track movie.id) {
-        <a [routerLink]="['movie/', movie.id]" class="cursor-pointer">
+        <a [routerLink]="['movie', movie.id]" class="cursor-pointer">
           <app-movie-card [movie]="movie" />
         </a>
       }

@@ -1,4 +1,4 @@
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, inject, signal, HostListener, OnInit } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,7 @@ import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
 import { AlphanumericMinLengthDirective } from '../../core/directives/alphanumeric-min-length.directive';
 import { SearchResultsComponent } from './search-results/search-results.component';
+import { SearchStateService } from '../../core/services/search-state.service';
 
 @Component({
   selector: 'app-search',
@@ -25,8 +26,9 @@ import { SearchResultsComponent } from './search-results/search-results.componen
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit {
   private readonly tmdbService = inject(TmdbService);
+  private readonly searchStateService = inject(SearchStateService);
   protected readonly searchControl = new FormControl('', [Validators.required]);
   readonly searchResults = signal<Movie[]>([]);
   readonly isLoading = signal<boolean | null>(null);
@@ -40,6 +42,19 @@ export class SearchComponent {
   readonly isFormVisible = signal(true);
   private lastScrollTop = 0;
   private readonly scrollThreshold = 10; // Minimum scroll distance to trigger hide/show
+
+  ngOnInit(): void {
+    // Restore search state if available
+    const savedState = this.searchStateService.getState();
+    if (savedState) {
+      this.searchControl.setValue(savedState.query);
+      this.searchResults.set(savedState.results);
+      this.totalResults.set(savedState.totalResults);
+      this.currentPage.set(savedState.currentPage);
+      this.pageSize.set(savedState.pageSize);
+      this.isLoading.set(savedState.isLoading);
+    }
+  }
 
   onSearch(page = 1): void {
     // Mark control as touched to show validation errors
@@ -60,6 +75,16 @@ export class SearchComponent {
           this.totalResults.set(response.total_results);
           this.currentPage.set(response.page - 1); // mat-paginator uses 0-based index
           this.isLoading.set(false);
+
+          // Save search state
+          this.searchStateService.setState({
+            query,
+            results: response.results,
+            totalResults: response.total_results,
+            currentPage: response.page - 1,
+            pageSize,
+            isLoading: false,
+          });
         },
         error: (error) => {
           console.error('Search error:', error);

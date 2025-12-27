@@ -89,4 +89,3 @@ export class GuestSessionService {
     this.session.set(null);
   }
 }
-

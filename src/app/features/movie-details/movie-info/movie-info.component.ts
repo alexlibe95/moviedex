@@ -16,4 +16,3 @@ export class MovieInfoComponent {
   readonly movie = input.required<MovieDetails>();
   readonly tmdbImageUrl = TMDB_IMAGE_URL;
 }
-

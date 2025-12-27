@@ -81,9 +81,7 @@ describe('MovieRatingComponent', () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Second request for rating
-    const ratingReq = httpMock.expectOne((request) =>
-      request.url.includes('/movie/123/rating')
-    );
+    const ratingReq = httpMock.expectOne((request) => request.url.includes('/movie/123/rating'));
     expect(ratingReq.request.method).toBe('POST');
     expect(ratingReq.request.body.value).toBe(10); // 5 stars * 2 = 10
     ratingReq.flush({ success: true });
@@ -120,9 +118,7 @@ describe('MovieRatingComponent', () => {
     // Wait for session to be processed
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const ratingReq = httpMock.expectOne((request) =>
-      request.url.includes('/movie/123/rating')
-    );
+    const ratingReq = httpMock.expectOne((request) => request.url.includes('/movie/123/rating'));
     ratingReq.flush({ success: true });
 
     await sessionPromise;
@@ -150,9 +146,7 @@ describe('MovieRatingComponent', () => {
     // Wait for session to be processed
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const ratingReq = httpMock.expectOne((request) =>
-      request.url.includes('/movie/123/rating')
-    );
+    const ratingReq = httpMock.expectOne((request) => request.url.includes('/movie/123/rating'));
     ratingReq.flush(null, { status: 500, statusText: 'Server Error' });
 
     await sessionPromise;
@@ -185,7 +179,7 @@ describe('MovieRatingComponent', () => {
 
     // Advance time for first retry (1000ms delay)
     vi.advanceTimersByTime(1000);
-    
+
     // Second request (first retry)
     const req2 = httpMock.expectOne((request) =>
       request.url.includes('/authentication/guest_session/new')
@@ -194,7 +188,7 @@ describe('MovieRatingComponent', () => {
 
     // Advance time for second retry (1000ms delay)
     vi.advanceTimersByTime(1000);
-    
+
     // Third request (second retry)
     const req3 = httpMock.expectOne((request) =>
       request.url.includes('/authentication/guest_session/new')
@@ -237,9 +231,7 @@ describe('MovieRatingComponent', () => {
     // Wait for session to be processed
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const ratingReq = httpMock.expectOne((request) =>
-      request.url.includes('/movie/123/rating')
-    );
+    const ratingReq = httpMock.expectOne((request) => request.url.includes('/movie/123/rating'));
     ratingReq.flush({ success: true });
 
     await sessionPromise;
@@ -265,13 +257,10 @@ describe('MovieRatingComponent', () => {
     // Wait for session to be processed
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const ratingReq = httpMock.expectOne((request) =>
-      request.url.includes('/movie/123/rating')
-    );
+    const ratingReq = httpMock.expectOne((request) => request.url.includes('/movie/123/rating'));
     ratingReq.flush({ success: true });
 
     await sessionPromise;
     expect(component.isRating()).toBe(false);
   });
 });
-

@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
@@ -15,7 +15,10 @@ import { Movie } from '../../core/models/movie.model';
 import { AlphanumericMinLengthDirective } from '../../core/directives/alphanumeric-min-length.directive';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { SearchStateService } from '../../core/services/search-state.service';
-import { MovieDetailsComponent, MovieDetailsDialogData } from '../movie-details/movie-details.component';
+import {
+  MovieDetailsComponent,
+  MovieDetailsDialogData,
+} from '../movie-details/movie-details.component';
 
 @Component({
   selector: 'app-search',
@@ -38,6 +41,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly destroy$ = new Subject<void>();
+  private currentDialogMovieId: number | null = null;
+  private currentDialogRef: MatDialogRef<MovieDetailsComponent> | null = null;
+  private isReplacingDialog = false;
 
   protected readonly searchControl = new FormControl('', [Validators.required]);
   readonly searchResults = signal<Movie[]>([]);
@@ -86,9 +92,22 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   private openMovieDialog(movieId: number): void {
-    // Check if dialog is already open to prevent duplicates
-    if (this.dialog.openDialogs.length > 0) {
+    // If dialog is already open for the same movie, don't reopen
+    if (this.dialog.openDialogs.length > 0 && this.currentDialogMovieId === movieId) {
       return;
+    }
+
+    // If dialog is open for a different movie, close it first
+    if (this.dialog.openDialogs.length > 0) {
+      this.isReplacingDialog = true;
+      // Unsubscribe from previous dialog's afterClosed to prevent navigation
+      if (this.currentDialogRef) {
+        this.currentDialogRef.close();
+      } else {
+        this.dialog.closeAll();
+      }
+      this.currentDialogMovieId = null;
+      this.currentDialogRef = null;
     }
 
     const dialogData: MovieDetailsDialogData = { movieId };
@@ -99,9 +118,20 @@ export class SearchComponent implements OnInit, OnDestroy {
       maxHeight: '90vh',
     });
 
+    // Track the current movie ID and dialog reference
+    this.currentDialogMovieId = movieId;
+    this.currentDialogRef = dialogRef;
+
     dialogRef.afterClosed().subscribe(() => {
-      // Navigate back to root when dialog closes
-      this.router.navigate(['/'], { replaceUrl: true });
+      // Clear the tracked movie ID and reference when dialog closes
+      this.currentDialogMovieId = null;
+      this.currentDialogRef = null;
+
+      // Only navigate back to root if we're not replacing the dialog
+      if (!this.isReplacingDialog) {
+        this.router.navigate(['/'], { replaceUrl: true });
+      }
+      this.isReplacingDialog = false;
     });
   }
 

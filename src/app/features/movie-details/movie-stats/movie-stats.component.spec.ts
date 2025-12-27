@@ -100,4 +100,3 @@ describe('MovieStatsComponent', () => {
     expect(component.languages()).toBe('French');
   });
 });
-

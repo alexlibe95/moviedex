@@ -62,15 +62,19 @@ export class MovieRatingComponent implements OnInit {
       const sessionId = await this.guestSessionService.getSessionId();
       this.tmdbService.rateMovie(this.movieId(), apiRating, sessionId).subscribe({
         next: (response) => {
+          this.isRating.set(false);
           if (response.success) {
             this.ratingSubmitted.emit(apiRating);
             this.snackBar.open('Rating submitted successfully!', 'Close', {
               duration: 3000,
             });
           } else {
-            throw new Error('Failed to submit rating');
+            // Handle unsuccessful response
+            console.error('Rating submission failed:', response);
+            this.snackBar.open('Failed to submit rating. Please try again.', 'Close', {
+              duration: 5000,
+            });
           }
-          this.isRating.set(false);
         },
         error: (error) => {
           console.error('Error rating movie:', error);
@@ -88,6 +92,4 @@ export class MovieRatingComponent implements OnInit {
       this.isRating.set(false);
     }
   }
-
 }
-

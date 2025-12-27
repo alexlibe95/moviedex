@@ -21,4 +21,3 @@ export class MovieStatsComponent {
     return movie.spoken_languages.map((lang) => lang.english_name).join(', ');
   });
 }
-

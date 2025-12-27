@@ -19,9 +19,7 @@ describe('MovieInfoComponent', () => {
     revenue: 5000000,
     vote_average: 8.5,
     vote_count: 1000,
-    spoken_languages: [
-      { english_name: 'English', iso_639_1: 'en', name: 'English' },
-    ],
+    spoken_languages: [{ english_name: 'English', iso_639_1: 'en', name: 'English' }],
   };
 
   beforeEach(async () => {
@@ -87,4 +85,3 @@ describe('MovieInfoComponent', () => {
     expect(compiled.textContent).toContain('2024');
   });
 });
-

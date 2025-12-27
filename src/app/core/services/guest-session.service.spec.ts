@@ -96,9 +96,9 @@ describe('GuestSessionService', () => {
 
   it('should handle session creation errors', async () => {
     service.clearSession(); // Ensure clean state
-    
+
     vi.useFakeTimers();
-    
+
     let errorCaught = false;
     const sessionPromise = service.getSessionId().catch((error) => {
       errorCaught = true;
@@ -116,7 +116,7 @@ describe('GuestSessionService', () => {
 
     // Advance time for first retry (1000ms delay)
     vi.advanceTimersByTime(1000);
-    
+
     // Second request (first retry)
     const req2 = httpMock.expectOne((request) =>
       request.url.includes('/authentication/guest_session/new')
@@ -128,7 +128,7 @@ describe('GuestSessionService', () => {
 
     // Advance time for second retry (1000ms delay)
     vi.advanceTimersByTime(1000);
-    
+
     // Third request (second retry)
     const req3 = httpMock.expectOne((request) =>
       request.url.includes('/authentication/guest_session/new')
@@ -140,17 +140,17 @@ describe('GuestSessionService', () => {
 
     // Advance time to ensure all async operations complete
     vi.advanceTimersByTime(100);
-    
+
     // Wait for promise to reject
     await sessionPromise.catch(() => {
       // Expected error
     });
-    
+
     vi.useRealTimers();
-    
+
     // Ensure error was caught
     expect(errorCaught).toBe(true);
-    
+
     // Ensure loading state is cleared after error
     expect(service.isSessionLoading()).toBe(false);
   });
@@ -171,7 +171,7 @@ describe('GuestSessionService', () => {
   it('should handle concurrent session requests', async () => {
     // Ensure clean state
     service.clearSession();
-    
+
     const promise1 = service.getSessionId();
     const promise2 = service.getSessionId();
 
@@ -186,7 +186,7 @@ describe('GuestSessionService', () => {
 
     expect(sessionId1).toBe('test-session-id-123');
     expect(sessionId2).toBe('test-session-id-123');
-    
+
     // Ensure loading state is cleared
     expect(service.isSessionLoading()).toBe(false);
     httpMock.expectNone((request) => request.url.includes('/authentication/guest_session/new'));
@@ -198,7 +198,7 @@ describe('GuestSessionService', () => {
     expect(service.isSessionLoading()).toBe(false);
 
     const sessionPromise = service.getSessionId();
-    
+
     // Check loading state immediately after starting the request
     expect(service.isSessionLoading()).toBe(true);
 
@@ -208,9 +208,8 @@ describe('GuestSessionService', () => {
     req.flush(mockGuestSession);
 
     await sessionPromise;
-    
+
     // Verify loading state is false after completion
     expect(service.isSessionLoading()).toBe(false);
   });
 });
-

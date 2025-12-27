@@ -3,6 +3,13 @@
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: hidden; // Prevent host from creating scroll container
+}
+
+// Ensure smooth scrolling on mobile
+:host ::ng-deep > div {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; // Prevent scroll chaining
 }
 
 .search-form-container {

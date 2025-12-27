@@ -58,7 +58,9 @@ export class AddToCollectionDialogComponent implements OnInit {
 
   async onCreateNewCollection(): Promise<void> {
     const dialogRef = this.dialog.open(CreateCollectionDialogComponent, {
-      width: '500px',
+      width: '90%',
+      maxWidth: '500px',
+      panelClass: 'create-collection-dialog',
     });
 
     const result = await firstValueFrom(dialogRef.afterClosed());

@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+}
+
+// Ensure dialog content is scrollable on mobile
+::ng-deep .mat-mdc-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Responsive padding for mobile
+::ng-deep .mat-mdc-dialog-container {
+  padding: 0 !important;
+  
+  @media (max-width: 640px) {
+    margin: 16px;
+    max-width: calc(100% - 32px);
+  }
+}
+
+::ng-deep .mat-mdc-dialog-surface {
+  @media (max-width: 640px) {
+    border-radius: 8px;
+  }
+}

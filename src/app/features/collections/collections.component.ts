@@ -47,7 +47,9 @@ export class CollectionsComponent implements OnInit {
 
   async openCreateDialog(): Promise<void> {
     const dialogRef = this.dialog.open(CreateCollectionDialogComponent, {
-      width: '500px',
+      width: '90%',
+      maxWidth: '500px',
+      panelClass: 'create-collection-dialog',
     });
 
     // Convert afterClosed to promise and handle result

@@ -160,32 +160,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  onScroll(event: Event): void {
-    // Use requestAnimationFrame to throttle scroll events and prevent blocking on mobile
-    if (this.scrollAnimationFrame !== null) {
-      return;
-    }
-
-    this.scrollAnimationFrame = requestAnimationFrame(() => {
-      const target = event.target as HTMLElement;
-      const scrollTop = target.scrollTop;
-
-      // Show form when at the top
-      if (scrollTop <= this.scrollThreshold) {
-        this.isFormVisible.set(true);
-      } else {
-        // Hide form when scrolling down, show when scrolling up
-        const scrollingDown = scrollTop > this.lastScrollTop;
-        if (Math.abs(scrollTop - this.lastScrollTop) > this.scrollThreshold) {
-          this.isFormVisible.set(!scrollingDown);
-        }
-      }
-
-      this.lastScrollTop = scrollTop;
-      this.scrollAnimationFrame = null;
-    });
-  }
-
   onMovieSelectionToggle(movie: Movie): void {
     const currentIds = new Set(this.selectedMovieIds());
     if (currentIds.has(movie.id)) {

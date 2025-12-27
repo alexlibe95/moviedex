@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, HostListener, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, effect } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -65,6 +65,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   readonly isFormVisible = signal(true);
   private lastScrollTop = 0;
   private readonly scrollThreshold = 10; // Minimum scroll distance to trigger hide/show
+  private scrollAnimationFrame: number | null = null;
 
   constructor() {
     // Clear selection when search results change (new search or page change)
@@ -98,6 +99,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.scrollAnimationFrame !== null) {
+      cancelAnimationFrame(this.scrollAnimationFrame);
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -156,23 +160,30 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('scroll', ['$event'])
   onScroll(event: Event): void {
-    const target = event.target as HTMLElement;
-    const scrollTop = target.scrollTop;
-
-    // Show form when at the top
-    if (scrollTop <= this.scrollThreshold) {
-      this.isFormVisible.set(true);
-    } else {
-      // Hide form when scrolling down, show when scrolling up
-      const scrollingDown = scrollTop > this.lastScrollTop;
-      if (Math.abs(scrollTop - this.lastScrollTop) > this.scrollThreshold) {
-        this.isFormVisible.set(!scrollingDown);
-      }
+    // Use requestAnimationFrame to throttle scroll events and prevent blocking on mobile
+    if (this.scrollAnimationFrame !== null) {
+      return;
     }
 
-    this.lastScrollTop = scrollTop;
+    this.scrollAnimationFrame = requestAnimationFrame(() => {
+      const target = event.target as HTMLElement;
+      const scrollTop = target.scrollTop;
+
+      // Show form when at the top
+      if (scrollTop <= this.scrollThreshold) {
+        this.isFormVisible.set(true);
+      } else {
+        // Hide form when scrolling down, show when scrolling up
+        const scrollingDown = scrollTop > this.lastScrollTop;
+        if (Math.abs(scrollTop - this.lastScrollTop) > this.scrollThreshold) {
+          this.isFormVisible.set(!scrollingDown);
+        }
+      }
+
+      this.lastScrollTop = scrollTop;
+      this.scrollAnimationFrame = null;
+    });
   }
 
   onMovieSelectionToggle(movie: Movie): void {
@@ -193,8 +204,10 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     const dialogRef = this.dialog.open(AddToCollectionDialogComponent, {
-      width: '500px',
+      width: '90%',
+      maxWidth: '500px',
       data: { movies: selectedMovies },
+      panelClass: 'add-to-collection-dialog',
     });
 
     const result = await firstValueFrom(dialogRef.afterClosed());

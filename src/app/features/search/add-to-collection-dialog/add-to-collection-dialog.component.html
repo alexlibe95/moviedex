@@ -1,7 +1,7 @@
-<div class="min-w-[400px]">
+<div class="w-full max-w-[500px] min-w-0 px-4 sm:px-0">
   <h2 mat-dialog-title>Add Movies to Collection</h2>
 
-  <mat-dialog-content>
+  <mat-dialog-content class="!max-h-[70vh] overflow-y-auto">
     <div class="flex flex-col gap-4 pt-6">
       <p class="m-0 text-sm text-gray-600">
         Select a collection to add {{ movies.length }} movie{{ movies.length > 1 ? 's' : '' }} to.

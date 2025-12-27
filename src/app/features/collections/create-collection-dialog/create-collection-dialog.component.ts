@@ -7,6 +7,12 @@ import { MatButtonModule } from '@angular/material/button';
 
 export interface CreateCollectionDialogData {
   collectionName?: string;
+  collectionDescription?: string;
+}
+
+export interface CreateCollectionResult {
+  name: string;
+  description?: string;
 }
 
 @Component({
@@ -32,6 +38,11 @@ export class CreateCollectionDialogComponent {
     Validators.maxLength(100),
   ]);
 
+  readonly collectionDescriptionControl = new FormControl(
+    this.data?.collectionDescription || '',
+    [Validators.maxLength(500)]
+  );
+
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -40,10 +51,16 @@ export class CreateCollectionDialogComponent {
     if (this.collectionNameControl.valid) {
       const name = this.collectionNameControl.value?.trim();
       if (name) {
-        this.dialogRef.close(name);
+        const description = this.collectionDescriptionControl.value?.trim() || undefined;
+        const result: CreateCollectionResult = {
+          name,
+          description,
+        };
+        this.dialogRef.close(result);
       }
     } else {
       this.collectionNameControl.markAsTouched();
+      this.collectionDescriptionControl.markAsTouched();
     }
   }
 }

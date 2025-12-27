@@ -9,7 +9,10 @@ import { firstValueFrom } from 'rxjs';
 
 import { CollectionsService } from '../../core/services/collections.service';
 import { Collection } from '../../core/models/collection.model';
-import { CreateCollectionDialogComponent } from './create-collection-dialog/create-collection-dialog.component';
+import {
+  CreateCollectionDialogComponent,
+  CreateCollectionResult,
+} from './create-collection-dialog/create-collection-dialog.component';
 
 @Component({
   selector: 'app-collections',
@@ -47,10 +50,11 @@ export class CollectionsComponent implements OnInit {
     });
 
     // Convert afterClosed to promise and handle result
-    const collectionName = await firstValueFrom(dialogRef.afterClosed());
-    if (collectionName) {
-      this.collectionsService.createCollection(collectionName);
-      this.snackBar.open(`Collection "${collectionName}" created successfully!`, 'Close', {
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (result && typeof result === 'object' && 'name' in result) {
+      const collectionResult = result as CreateCollectionResult;
+      this.collectionsService.createCollection(collectionResult.name, collectionResult.description);
+      this.snackBar.open(`Collection "${collectionResult.name}" created successfully!`, 'Close', {
         duration: 3000,
       });
     }

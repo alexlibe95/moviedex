@@ -13,21 +13,21 @@ import { filter } from 'rxjs/operators';
 })
 export class ToolbarComponent {
   private readonly router = inject(Router);
-  readonly isRootRoute = signal(this.checkIsRootRoute());
+  readonly showBackButton = signal(this.checkShowBackButton());
 
   constructor() {
     // Update signal on route changes
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.isRootRoute.set(this.checkIsRootRoute());
+      this.showBackButton.set(this.checkShowBackButton());
     });
   }
 
-  private checkIsRootRoute(): boolean {
+  private checkShowBackButton(): boolean {
     const url = this.router.url;
     // Get the path without query parameters
     const path = url.split('?')[0];
-    // Check if path is root route (empty string or '/')
-    return path === '/' || path === '';
+    // Show back button only when on collections route
+    return path.startsWith('/collections');
   }
 
   goBack(): void {

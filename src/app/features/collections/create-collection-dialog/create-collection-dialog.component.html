@@ -1,25 +1,45 @@
-<div class="create-collection-dialog">
+<div class="min-w-[400px]">
   <h2 mat-dialog-title>Create New Collection</h2>
 
   <mat-dialog-content>
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Collection Name</mat-label>
-      <input
-        matInput
-        [formControl]="collectionNameControl"
-        placeholder="Enter collection name"
-        (keydown.enter)="onCreate()"
-      />
-      @if (collectionNameControl.invalid && collectionNameControl.touched) {
-        <mat-error>
-          @if (collectionNameControl.hasError('required')) {
-            Collection name is required.
-          } @else if (collectionNameControl.hasError('maxlength')) {
-            Collection name must be less than 100 characters.
-          }
-        </mat-error>
-      }
-    </mat-form-field>
+    <div class="flex flex-col gap-4 pt-6">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Collection Name</mat-label>
+        <input
+          matInput
+          [formControl]="collectionNameControl"
+          placeholder="Enter collection name"
+          (keydown.enter)="onCreate()"
+        />
+        @if (collectionNameControl.invalid && collectionNameControl.touched) {
+          <mat-error>
+            @if (collectionNameControl.hasError('required')) {
+              Collection name is required.
+            } @else if (collectionNameControl.hasError('maxlength')) {
+              Collection name must be less than 100 characters.
+            }
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Description (Optional)</mat-label>
+        <textarea
+          matInput
+          [formControl]="collectionDescriptionControl"
+          placeholder="Enter collection description"
+          rows="3"
+        ></textarea>
+        @if (collectionDescriptionControl.invalid && collectionDescriptionControl.touched) {
+          <mat-error>
+            @if (collectionDescriptionControl.hasError('maxlength')) {
+              Description must be less than 500 characters.
+            }
+          </mat-error>
+        }
+        <mat-hint>Maximum 500 characters</mat-hint>
+      </mat-form-field>
+    </div>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">

@@ -1,6 +1,6 @@
 <div class="sticky top-0 z-10">
   <mat-toolbar style="min-height: 64px">
-    @if (!isRootRoute()) {
+    @if (showBackButton()) {
       <button mat-icon-button (click)="goBack()" aria-label="Go back" type="button">
         <mat-icon>arrow_back</mat-icon>
       </button>

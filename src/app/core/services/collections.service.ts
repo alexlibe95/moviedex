@@ -37,10 +37,11 @@ export class CollectionsService {
   /**
    * Create a new collection
    */
-  createCollection(name: string): Collection {
+  createCollection(name: string, description?: string): Collection {
     const newCollection: Collection = {
       id: this.generateId(),
       name: name.trim(),
+      description: description?.trim() || undefined,
       movies: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

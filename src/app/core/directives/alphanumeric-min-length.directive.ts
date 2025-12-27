@@ -1,11 +1,11 @@
-import { Directive, HostListener, Input, inject } from '@angular/core';
+import { Directive, HostListener, inject, input } from '@angular/core';
 import { NgControl } from '@angular/forms';
 
 @Directive({
   selector: '[appAlphanumericMinLength]'
 })
 export class AlphanumericMinLengthDirective {
-  @Input() minLength = 3;
+  readonly minLength = input(3);
   private readonly control = inject(NgControl, { optional: true, self: true });
 
   @HostListener('input', ['$event'])
@@ -46,12 +46,12 @@ export class AlphanumericMinLengthDirective {
     const trimmedValue = value.trim();
     
     if (this.control?.control) {
-      if (trimmedValue.length > 0 && trimmedValue.length < this.minLength) {
+      if (trimmedValue.length > 0 && trimmedValue.length < this.minLength()) {
         const currentErrors = this.control.control.errors || {};
         this.control.control.setErrors({
           ...currentErrors,
           minLength: {
-            requiredLength: this.minLength,
+            requiredLength: this.minLength(),
             actualLength: trimmedValue.length,
           },
         });

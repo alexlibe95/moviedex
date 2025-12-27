@@ -2,17 +2,14 @@ import { Component, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 
 import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
-import { MovieCardComponent } from '../../shared/components/movie-card/movie-card.component';
 import { AlphanumericMinLengthDirective } from '../../shared/directives/alphanumeric-min-length.directive';
-import { PaginationComponent } from './pagination/pagination.component';
+import { SearchResultsComponent } from './search-results/search-results.component';
 
 @Component({
   selector: 'app-search',
@@ -22,11 +19,8 @@ import { PaginationComponent } from './pagination/pagination.component';
     MatButtonModule,
     MatIconModule,
     ReactiveFormsModule,
-    MatProgressSpinnerModule,
-    MovieCardComponent,
-    RouterLink,
     AlphanumericMinLengthDirective,
-    PaginationComponent,
+    SearchResultsComponent,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',

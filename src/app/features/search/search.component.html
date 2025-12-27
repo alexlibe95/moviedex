@@ -8,7 +8,7 @@
     class="sticky top-0 z-10 flex flex-col justify-center items-center w-full bg-black/85"
     style="min-height: 156px"
   >
-    <form (submit)="onSearch($event)" class="md:w-1/2 md:px-0 px-6 w-full">
+    <form class="md:w-1/2 md:px-0 px-6 w-full">
       <mat-form-field class="flex justify-center items-center w-full" appearance="outline">
         <mat-icon matPrefix>search</mat-icon>
         <input
@@ -31,15 +31,28 @@
           </mat-error>
         }
       </mat-form-field>
-      <button mat-raised-button type="submit" class="w-full" [disabled]="isLoading()">Search</button>
+      <button
+        mat-raised-button
+        type="button"
+        (click)="onSearch()"
+        class="w-full"
+        [disabled]="isLoading()"
+      >
+        Search
+      </button>
     </form>
   </div>
+
   @if (isLoading()) {
     <div class="flex justify-center items-center w-full h-full">
       <mat-spinner diameter="20"></mat-spinner>
     </div>
+  } @else if (isLoading() === null) {
+    <div class="flex justify-center items-center w-full h-full">
+      <p>Search for a movie</p>
+    </div>
   } @else if (searchResults().length > 0) {
-    <div class="flex flex-wrap gap-6 py-6">
+    <div class="flex flex-col gap-6 py-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
         @for (movie of searchResults(); track movie.id) {
           <a [routerLink]="['movie/', movie.id]" class="cursor-pointer">
@@ -47,6 +60,13 @@
           </a>
         }
       </div>
+      <app-pagination
+        [length]="totalResults()"
+        [pageSize]="pageSize()"
+        [pageIndex]="currentPage()"
+        [pageSizeOptions]="[20, 40, 60, 100]"
+        (pageChange)="onPageChange($event)"
+      />
     </div>
   } @else {
     <div class="flex justify-center items-center w-full h-full">

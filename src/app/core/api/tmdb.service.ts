@@ -1,8 +1,10 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { MovieSearchResponse } from '../models/movie-search.model';
-import { Observable, throwError, catchError, retry } from 'rxjs';
+import { Observable, throwError, catchError, retry, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { environment } from '../../../../environment';
+import { MovieSearchResponse } from '../models/movie-search.model';
 
 /**
  * Service for interacting with The Movie Database (TMDB) API.
@@ -100,22 +102,73 @@ export class TmdbService {
    * Searches for movies by query string.
    * @param query - The search query string
    * @param page - Page number (default: 1)
+   * @param pageSize - Number of results per page (default: 20)
    * @returns Observable of MovieSearchResponse
    * @throws Error if query is invalid or API call fails
    */
-  searchMovies(query: string, page = 1): Observable<MovieSearchResponse> {
+  searchMovies(query: string, page = 1, pageSize = 20): Observable<MovieSearchResponse> {
     this.validateQuery(query);
     this.validatePage(page);
 
-    const params = this.withApiKey(
-      new HttpParams().set('query', query.trim()).set('page', page.toString())
-    );
+    // Calculate how many API pages we need to fetch
+    // TMDB API returns 20 results per page
+    const apiPageSize = 20;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const startApiPage = Math.floor(startIndex / apiPageSize) + 1;
+    const endApiPage = Math.ceil(endIndex / apiPageSize);
+    const pagesToFetch = endApiPage - startApiPage + 1;
 
-    return this.http
-      .get<MovieSearchResponse>(`${this.apiUrl}/search/movie`, { params })
-      .pipe(
+    // If we only need one page, fetch it directly
+    if (pagesToFetch === 1) {
+      const params = this.withApiKey(
+        new HttpParams().set('query', query.trim()).set('page', startApiPage.toString())
+      );
+
+      return this.http
+        .get<MovieSearchResponse>(`${this.apiUrl}/search/movie`, { params })
+        .pipe(
+          retry({ count: this.maxRetries, delay: this.retryDelay }),
+          catchError(this.handleError),
+          // Transform response to match requested pageSize
+          map((response) => {
+            const start = startIndex % apiPageSize;
+            const end = start + pageSize;
+            return {
+              ...response,
+              results: response.results.slice(start, end),
+            };
+          })
+        );
+    }
+
+    // Fetch multiple pages and combine results
+    const requests = Array.from({ length: pagesToFetch }, (_, i) => {
+      const apiPage = startApiPage + i;
+      const params = this.withApiKey(
+        new HttpParams().set('query', query.trim()).set('page', apiPage.toString())
+      );
+
+      return this.http.get<MovieSearchResponse>(`${this.apiUrl}/search/movie`, { params }).pipe(
         retry({ count: this.maxRetries, delay: this.retryDelay }),
         catchError(this.handleError)
       );
+    });
+
+    return forkJoin(requests).pipe(
+      map((responses) => {
+        // Combine all results
+        const allResults = responses.flatMap((r) => r.results);
+        const firstResponse = responses[0];
+        const start = startIndex % apiPageSize;
+        const end = start + pageSize;
+
+        return {
+          ...firstResponse,
+          results: allResults.slice(start, end),
+          page: page,
+        };
+      })
+    );
   }
 }

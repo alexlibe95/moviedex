@@ -1,0 +1,11 @@
+:host {
+  display: block;
+  // Allow touch scrolling to pass through
+  touch-action: pan-y;
+  
+  // But allow clicks on the card
+  mat-card {
+    touch-action: manipulation;
+  }
+}
+

@@ -1,6 +1,9 @@
 :host {
   display: block;
   width: 100%;
+  // Ensure touch events work everywhere
+  touch-action: pan-y;
+  pointer-events: auto;
 }
 
 .search-form-container {

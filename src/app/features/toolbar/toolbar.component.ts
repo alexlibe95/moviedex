@@ -7,7 +7,6 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-toolbar',
-  standalone: true,
   imports: [MatToolbarModule, MatIconModule, MatButtonModule],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss',
@@ -27,7 +26,10 @@ export class ToolbarComponent {
 
   private checkIsRootRoute(): boolean {
     const url = this.router.url;
-    return url === '/' || url === '' || url === '/?';
+    // Get the path without query parameters
+    const path = url.split('?')[0];
+    // Check if path is root route (empty string or '/')
+    return path === '/' || path === '';
   }
 
   goBack(): void {

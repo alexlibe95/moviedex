@@ -13,8 +13,8 @@ export class AlphanumericMinLengthDirective {
     const input = event.target as HTMLInputElement;
     let value = input.value;
 
-    // Remove non-alphanumeric characters
-    value = value.replace(/[^a-zA-Z0-9]/g, '');
+    // Remove non-alphanumeric characters but allow spaces (for movie titles like "Star Wars")
+    value = value.replace(/[^a-zA-Z0-9 ]/g, '');
 
     // Update the input value
     if (input.value !== value) {

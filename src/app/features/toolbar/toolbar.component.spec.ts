@@ -95,4 +95,20 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
     expect(component.isRootRoute()).toBe(true);
   });
+
+  it('should recognize root route with query parameters', () => {
+    mockRouter.url = '/?page=1';
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(component.isRootRoute()).toBe(true);
+  });
+
+  it('should recognize root route with multiple query parameters', () => {
+    mockRouter.url = '/?search=test&page=1';
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(component.isRootRoute()).toBe(true);
+  });
 });

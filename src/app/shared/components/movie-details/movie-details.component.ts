@@ -11,7 +11,6 @@ export interface MovieDetailsDialogData {
 
 @Component({
   selector: 'app-movie-details',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,

@@ -17,7 +17,6 @@ export interface CreateCollectionResult {
 
 @Component({
   selector: 'app-create-collection-dialog',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatFormFieldModule,

@@ -11,7 +11,6 @@ import { MovieRatingComponent } from '../movie-rating/movie-rating.component';
 
 @Component({
   selector: 'app-movie-details-content',
-  standalone: true,
   imports: [
     MatProgressSpinnerModule,
     MatIconModule,

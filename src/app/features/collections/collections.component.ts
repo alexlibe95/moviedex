@@ -17,7 +17,6 @@ import {
 
 @Component({
   selector: 'app-collections',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule, DatePipe],
   templateUrl: './collections.component.html',
   styleUrl: './collections.component.scss',

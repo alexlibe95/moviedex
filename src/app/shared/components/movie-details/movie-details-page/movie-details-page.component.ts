@@ -6,7 +6,6 @@ import { MovieDetailsContentComponent } from '../movie-details-content/movie-det
 
 @Component({
   selector: 'app-movie-details-page',
-  standalone: true,
   imports: [MatIconModule, MovieDetailsContentComponent],
   templateUrl: './movie-details-page.component.html',
   styleUrl: './movie-details-page.component.scss',

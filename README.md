@@ -260,6 +260,49 @@ npm run lint
 - Rate movies (1-10 scale)
 - View movie ratings and statistics
 
+## Deployment
+
+### Netlify Deployment
+
+This project is configured for easy deployment on Netlify.
+
+#### Setup Steps:
+
+1. **Push your code to GitHub/GitLab/Bitbucket**
+
+2. **Connect to Netlify**:
+   - Go to [Netlify](https://www.netlify.com/)
+   - Click "Add new site" → "Import an existing project"
+   - Connect your repository
+
+3. **Configure Environment Variables**:
+   - Go to Site settings → Environment variables
+   - Add the following variable:
+     - **Key**: `TMDB_API_KEY`
+     - **Value**: Your TMDB API key
+   - (Optional) **Key**: `TMDB_API_URL`
+     - **Value**: `https://api.themoviedb.org/3` (default)
+
+4. **Build Settings** (should auto-detect from `netlify.toml`):
+   - **Build command**: `npm run build:netlify`
+   - **Publish directory**: `dist/moviedex/browser`
+
+5. **Deploy**:
+   - Click "Deploy site"
+   - Netlify will automatically build and deploy your app
+
+#### How It Works:
+
+The `build:netlify` script:
+- Reads `TMDB_API_KEY` and `TMDB_API_URL` from Netlify environment variables
+- Generates `environment.ts` dynamically before building
+- Builds the Angular app with the correct API configuration
+
+#### Local Development vs Production:
+
+- **Local**: Copy `environment.example.ts` to `environment.ts` and add your API key
+- **Netlify**: Uses environment variables set in Netlify dashboard (no file needed)
+
 ## Development Notes
 
 - All components are standalone (no NgModules)
@@ -267,6 +310,7 @@ npm run lint
 - Material Design components for UI consistency
 - Tailwind CSS for utility-based styling
 - Comprehensive test coverage with Vitest
+- Environment variables handled securely for deployment
 
 ## License
 

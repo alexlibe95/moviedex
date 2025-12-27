@@ -9,7 +9,6 @@ import { GuestSessionService } from '../../../../core/services/guest-session.ser
 
 @Component({
   selector: 'app-movie-rating',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './movie-rating.component.html',
   styleUrl: './movie-rating.component.scss',

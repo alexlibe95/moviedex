@@ -24,7 +24,6 @@ export interface AddToCollectionResult {
 
 @Component({
   selector: 'app-add-to-collection-dialog',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatFormFieldModule,

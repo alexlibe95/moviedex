@@ -7,7 +7,6 @@ import { TMDB_IMAGE_URL } from '../../../../core/constants/api.constants';
 
 @Component({
   selector: 'app-movie-info',
-  standalone: true,
   imports: [DatePipe, MatIconModule],
   templateUrl: './movie-info.component.html',
   styleUrl: './movie-info.component.scss',

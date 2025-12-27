@@ -284,7 +284,7 @@ This project is configured for easy deployment on Netlify.
      - **Value**: `https://api.themoviedb.org/3` (default)
 
 4. **Build Settings** (should auto-detect from `netlify.toml`):
-   - **Build command**: `npm run build:netlify`
+   - **Build command**: `npm run build` (automatically generates environment.ts)
    - **Publish directory**: `dist/moviedex/browser`
 
 5. **Deploy**:
@@ -293,10 +293,13 @@ This project is configured for easy deployment on Netlify.
 
 #### How It Works:
 
-The `build:netlify` script:
-- Reads `TMDB_API_KEY` and `TMDB_API_URL` from Netlify environment variables
-- Generates `environment.ts` dynamically before building
-- Builds the Angular app with the correct API configuration
+The build process automatically:
+- Runs `prebuild` script that checks for `TMDB_API_KEY` environment variable
+- If found, generates `environment.ts` from Netlify environment variables
+- If not found, uses existing `environment.ts` or copies from `environment.example.ts`
+- Then builds the Angular app with the correct API configuration
+
+**Note**: The `prebuild` hook ensures `environment.ts` exists before Angular tries to import it, whether you use `npm run build` or `npm run build:netlify`.
 
 #### Local Development vs Production:
 

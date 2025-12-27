@@ -3,7 +3,7 @@
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 } @else if (movies().length > 0) {
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full min-w-0">
     @for (movie of movies(); track movie.id) {
       <app-movie-card
         [movie]="movie"

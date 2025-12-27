@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +17,6 @@ import { PaginationComponent } from './pagination/pagination.component';
 @Component({
   selector: 'app-search',
   imports: [
-    MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,

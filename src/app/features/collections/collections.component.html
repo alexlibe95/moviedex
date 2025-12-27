@@ -1,0 +1,62 @@
+<div class="p-8 max-w-[1200px] mx-auto min-h-[calc(100vh-64px)]">
+  <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
+    <h1 class="m-0 text-3xl font-semibold">My Collections</h1>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()" type="button">
+      <mat-icon>add</mat-icon>
+      Create Collection
+    </button>
+  </div>
+
+  @if (collections().length === 0) {
+    <div class="flex flex-col items-center justify-center py-16 px-8 text-center gap-2">
+      <mat-icon class="mb-4" style="font-size: 80px; width: 80px; height: 80px;">folder_open</mat-icon>
+      <h2 class="m-0 mb-2 text-2xl">No collections yet</h2>
+      <p class="m-0 mb-8 text-gray-600">Create your first collection to start organizing your favorite movies!</p>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()" type="button">
+        <mat-icon>add</mat-icon>
+        Create Your First Collection
+      </button>
+    </div>
+  } @else {
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
+      @for (collection of collections(); track collection.id) {
+        <mat-card
+          class="flex flex-col h-full cursor-pointer"
+          (click)="viewCollection(collection.id)"
+          (keydown)="handleKeydown($event, collection.id)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'View collection ' + collection.name"
+        >
+          <mat-card-header>
+            <mat-card-title>{{ collection.name }}</mat-card-title>
+            <mat-card-subtitle>
+              {{ getMovieCount(collection) }} {{ getMovieCount(collection) === 1 ? 'movie' : 'movies' }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="flex-1">
+            @if (collection.description) {
+              <p class="m-0 mb-2 text-sm">{{ collection.description }}</p>
+            }
+            <p class="m-0 text-sm text-gray-600">
+              Created {{ collection.createdAt | date: 'mediumDate' }}
+            </p>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <button
+              mat-button
+              (click)="deleteCollection($event, collection)"
+              type="button"
+              color="warn"
+              (keydown)="$event.stopPropagation()"
+            >
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>
+

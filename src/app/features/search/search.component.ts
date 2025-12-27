@@ -1,24 +1,23 @@
-import { Component, inject, signal, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, HostListener, OnInit, OnDestroy, effect } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 
 import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
 import { AlphanumericMinLengthDirective } from '../../core/directives/alphanumeric-min-length.directive';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { SearchStateService } from '../../core/services/search-state.service';
-import {
-  MovieDetailsComponent,
-  MovieDetailsDialogData,
-} from '../movie-details/movie-details.component';
+import { CollectionsService } from '../../core/services/collections.service';
+import { AddToCollectionDialogComponent } from './add-to-collection-dialog/add-to-collection-dialog.component';
 
 @Component({
   selector: 'app-search',
@@ -27,6 +26,8 @@ import {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    MatBadgeModule,
+    MatTooltipModule,
     ReactiveFormsModule,
     AlphanumericMinLengthDirective,
     SearchResultsComponent,
@@ -37,13 +38,10 @@ import {
 export class SearchComponent implements OnInit, OnDestroy {
   private readonly tmdbService = inject(TmdbService);
   private readonly searchStateService = inject(SearchStateService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly collectionsService = inject(CollectionsService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly destroy$ = new Subject<void>();
-  private currentDialogMovieId: number | null = null;
-  private currentDialogRef: MatDialogRef<MovieDetailsComponent> | null = null;
-  private isReplacingDialog = false;
 
   protected readonly searchControl = new FormControl('', [Validators.required]);
   readonly searchResults = signal<Movie[]>([]);
@@ -54,10 +52,37 @@ export class SearchComponent implements OnInit, OnDestroy {
   readonly currentPage = signal(0);
   readonly pageSize = signal(20);
 
+  // Selection state
+  readonly selectedMovieIds = signal<Set<number>>(new Set());
+  // Use computed to automatically update when selectedMovieIds or searchResults change
+  readonly selectedMovies = computed(() => {
+    const ids = this.selectedMovieIds();
+    const movies = this.searchResults();
+    return movies.filter((m) => ids.has(m.id));
+  });
+
   // Scroll state
   readonly isFormVisible = signal(true);
   private lastScrollTop = 0;
   private readonly scrollThreshold = 10; // Minimum scroll distance to trigger hide/show
+
+  constructor() {
+    // Clear selection when search results change (new search or page change)
+    // This ensures selectedMovieIds only contains IDs from current search results
+    effect(() => {
+      const currentResults = this.searchResults();
+      const currentIds = this.selectedMovieIds();
+      
+      // Filter out any selected IDs that are no longer in the current search results
+      const validIds = new Set(currentResults.map((m) => m.id));
+      const filteredIds = new Set([...currentIds].filter((id) => validIds.has(id)));
+      
+      // Only update if there's a difference to avoid infinite loops
+      if (filteredIds.size !== currentIds.size) {
+        this.selectedMovieIds.set(filteredIds);
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Restore search state if available
@@ -70,69 +95,11 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.pageSize.set(savedState.pageSize);
       this.isLoading.set(savedState.isLoading);
     }
-
-    // Listen for route param changes to open dialog when navigating to /movie/:id
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const movieId = params.get('id');
-      if (movieId) {
-        const id = parseInt(movieId, 10);
-        if (!isNaN(id)) {
-          // Small delay to ensure component is fully initialized
-          setTimeout(() => {
-            this.openMovieDialog(id);
-          }, 0);
-        }
-      }
-    });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private openMovieDialog(movieId: number): void {
-    // If dialog is already open for the same movie, don't reopen
-    if (this.dialog.openDialogs.length > 0 && this.currentDialogMovieId === movieId) {
-      return;
-    }
-
-    // If dialog is open for a different movie, close it first
-    if (this.dialog.openDialogs.length > 0) {
-      this.isReplacingDialog = true;
-      // Unsubscribe from previous dialog's afterClosed to prevent navigation
-      if (this.currentDialogRef) {
-        this.currentDialogRef.close();
-      } else {
-        this.dialog.closeAll();
-      }
-      this.currentDialogMovieId = null;
-      this.currentDialogRef = null;
-    }
-
-    const dialogData: MovieDetailsDialogData = { movieId };
-    const dialogRef = this.dialog.open(MovieDetailsComponent, {
-      data: dialogData,
-      width: '90vw',
-      maxWidth: '800px',
-      maxHeight: '90vh',
-    });
-
-    // Track the current movie ID and dialog reference
-    this.currentDialogMovieId = movieId;
-    this.currentDialogRef = dialogRef;
-
-    dialogRef.afterClosed().subscribe(() => {
-      // Clear the tracked movie ID and reference when dialog closes
-      this.currentDialogMovieId = null;
-      this.currentDialogRef = null;
-
-      // Only navigate back to root if we're not replacing the dialog
-      if (!this.isReplacingDialog) {
-        this.router.navigate(['/'], { replaceUrl: true });
-      }
-      this.isReplacingDialog = false;
-    });
   }
 
   onSearch(page = 1): void {
@@ -206,5 +173,71 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     this.lastScrollTop = scrollTop;
+  }
+
+  onMovieSelectionToggle(movie: Movie): void {
+    const currentIds = new Set(this.selectedMovieIds());
+    if (currentIds.has(movie.id)) {
+      currentIds.delete(movie.id);
+    } else {
+      currentIds.add(movie.id);
+    }
+    this.selectedMovieIds.set(currentIds);
+    // selectedMovies is now computed, so it will update automatically
+  }
+
+  async openAddToCollectionDialog(): Promise<void> {
+    const selectedMovies = this.selectedMovies();
+    if (selectedMovies.length === 0) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AddToCollectionDialogComponent, {
+      width: '500px',
+      data: { movies: selectedMovies },
+    });
+
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (result && result.collectionId) {
+      const collection = this.collectionsService.getCollection(result.collectionId);
+      if (collection) {
+        let addedCount = 0;
+        let skippedCount = 0;
+
+        for (const movie of selectedMovies) {
+          const success = this.collectionsService.addMovieToCollection(result.collectionId, movie);
+          if (success) {
+            addedCount++;
+          } else {
+            skippedCount++;
+          }
+        }
+
+        // Combine messages if both conditions are true to avoid losing messages
+        if (addedCount > 0 && skippedCount > 0) {
+          this.snackBar.open(
+            `Added ${addedCount} movie${addedCount > 1 ? 's' : ''} to "${collection.name}". ${skippedCount} movie${skippedCount > 1 ? 's were' : ' was'} already in the collection.`,
+            'Close',
+            { duration: 4000 }
+          );
+        } else if (addedCount > 0) {
+          this.snackBar.open(
+            `Added ${addedCount} movie${addedCount > 1 ? 's' : ''} to "${collection.name}"`,
+            'Close',
+            { duration: 3000 }
+          );
+        } else if (skippedCount > 0) {
+          this.snackBar.open(
+            `${skippedCount} movie${skippedCount > 1 ? 's were' : ' was'} already in the collection`,
+            'Close',
+            { duration: 3000 }
+          );
+        }
+
+        // Clear selection
+        this.selectedMovieIds.set(new Set());
+        // selectedMovies is computed, so it will update automatically
+      }
+    }
   }
 }

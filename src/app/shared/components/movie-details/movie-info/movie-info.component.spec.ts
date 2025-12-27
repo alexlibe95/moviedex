@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MovieInfoComponent } from './movie-info.component';
-import { MovieDetails } from '../../../core/models/movie-details.model';
+import { MovieDetails } from '../../../../core/models/movie-details.model';
 
 describe('MovieInfoComponent', () => {
   let component: MovieInfoComponent;

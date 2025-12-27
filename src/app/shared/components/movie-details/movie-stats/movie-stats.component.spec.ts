@@ -3,7 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MovieStatsComponent } from './movie-stats.component';
-import { MovieDetails } from '../../../core/models/movie-details.model';
+import { MovieDetails } from '../../../../core/models/movie-details.model';
 
 describe('MovieStatsComponent', () => {
   let component: MovieStatsComponent;

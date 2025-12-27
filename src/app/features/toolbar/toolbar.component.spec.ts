@@ -50,13 +50,13 @@ describe('ToolbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show back button when not on root route', () => {
-    mockRouter.url = '/movie/123';
+  it('should show back button when on collections route', () => {
+    mockRouter.url = '/collections';
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.isRootRoute()).toBe(false);
+    expect(component.showBackButton()).toBe(true);
   });
 
   it('should hide back button when on root route', () => {
@@ -65,7 +65,16 @@ describe('ToolbarComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.isRootRoute()).toBe(true);
+    expect(component.showBackButton()).toBe(false);
+  });
+
+  it('should show back button when on movie route', () => {
+    mockRouter.url = '/movie/123';
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.showBackButton()).toBe(true);
   });
 
   it('should navigate to root when goBack is called', () => {
@@ -74,41 +83,41 @@ describe('ToolbarComponent', () => {
     expect(navigateArgs).toEqual(['/']);
   });
 
-  it('should update isRootRoute signal on navigation end', () => {
+  it('should update showBackButton signal on navigation end', () => {
     mockRouter.url = '/';
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    expect(component.isRootRoute()).toBe(true);
+    expect(component.showBackButton()).toBe(false);
 
-    mockRouter.url = '/movie/123';
-    navigationSubject.next(new NavigationEnd(1, '/movie/123', '/movie/123'));
+    mockRouter.url = '/collections';
+    navigationSubject.next(new NavigationEnd(1, '/collections', '/collections'));
     fixture.detectChanges();
 
-    expect(component.isRootRoute()).toBe(false);
+    expect(component.showBackButton()).toBe(true);
   });
 
-  it('should recognize root route with query params', () => {
+  it('should hide back button on root route with query params', () => {
     mockRouter.url = '/?';
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    expect(component.isRootRoute()).toBe(true);
+    expect(component.showBackButton()).toBe(false);
   });
 
-  it('should recognize root route with query parameters', () => {
+  it('should hide back button on root route with query parameters', () => {
     mockRouter.url = '/?page=1';
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    expect(component.isRootRoute()).toBe(true);
+    expect(component.showBackButton()).toBe(false);
   });
 
-  it('should recognize root route with multiple query parameters', () => {
+  it('should hide back button on root route with multiple query parameters', () => {
     mockRouter.url = '/?search=test&page=1';
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    expect(component.isRootRoute()).toBe(true);
+    expect(component.showBackButton()).toBe(false);
   });
 });

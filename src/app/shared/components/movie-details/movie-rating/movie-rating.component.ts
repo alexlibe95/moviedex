@@ -4,12 +4,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { TmdbService } from '../../../core/api/tmdb.service';
-import { GuestSessionService } from '../../../core/services/guest-session.service';
+import { TmdbService } from '../../../../core/api/tmdb.service';
+import { GuestSessionService } from '../../../../core/services/guest-session.service';
 
 @Component({
   selector: 'app-movie-rating',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './movie-rating.component.html',
   styleUrl: './movie-rating.component.scss',

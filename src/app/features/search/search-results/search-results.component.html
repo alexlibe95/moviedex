@@ -1,37 +1,24 @@
-@if (isLoading()) {
-  <div class="flex justify-center items-center w-full h-full">
-    <mat-spinner diameter="20"></mat-spinner>
-  </div>
-} @else if (isLoading() === null) {
-  <div class="flex justify-center items-center w-full h-full">
+@if (isLoading() === null) {
+  <div class="flex justify-center items-center w-full h-full py-8">
     <p>Search for a movie</p>
   </div>
-} @else if (searchResults().length > 0) {
-  <div class="flex flex-col gap-6 py-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
-      @for (movie of searchResults(); track movie.id) {
-        <div
-          (click)="openMovieDetails(movie.id)"
-          (keydown)="handleKeydown($event, movie.id)"
-          tabindex="0"
-          role="button"
-          [attr.aria-label]="'View details for ' + movie.title"
-          class="cursor-pointer"
-        >
-          <app-movie-card [movie]="movie" />
-        </div>
-      }
-    </div>
-    <app-pagination
-      [length]="totalResults()"
-      [pageSize]="pageSize()"
-      [pageIndex]="currentPage()"
-      [pageSizeOptions]="pageSizeOptions()"
-      (pageChange)="pageChange.emit($event)"
-    />
-  </div>
 } @else {
-  <div class="flex justify-center items-center w-full h-full">
-    <p>No results found</p>
+  <div class="flex flex-col gap-6 py-6 w-full overflow-x-hidden">
+    <app-movie-list
+      [movies]="searchResults()"
+      [isLoading]="isLoading()"
+      [emptyMessage]="'No results found'"
+      [selectedMovieIds]="selectedMovieIds()"
+      (movieSelectionToggle)="movieSelectionToggle.emit($event)"
+    />
+    @if (searchResults().length > 0 || isLoading() === false) {
+      <app-pagination
+        [length]="totalResults()"
+        [pageSize]="pageSize()"
+        [pageIndex]="currentPage()"
+        [pageSizeOptions]="pageSizeOptions()"
+        (pageChange)="pageChange.emit($event)"
+      />
+    }
   </div>
 }

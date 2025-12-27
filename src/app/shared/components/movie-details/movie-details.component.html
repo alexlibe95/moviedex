@@ -1,0 +1,12 @@
+<div class="max-w-[90vw] max-h-[90vh] overflow-auto p-6">
+  <div class="flex justify-between items-center mb-4 w-full">
+    <h2 mat-dialog-title class="m-0">Movie Details</h2>
+    <button mat-icon-button (click)="close()" aria-label="Close dialog" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <app-movie-details-content [movieId]="movieId" />
+  </mat-dialog-content>
+</div>

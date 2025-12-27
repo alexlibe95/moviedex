@@ -1,20 +1,17 @@
-import { Component, input, output, inject } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
+import { Component, input, output } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 
 import { Movie } from '../../../core/models/movie.model';
-import { MovieCardComponent } from './movie-card/movie-card.component';
 import { PaginationComponent } from '../pagination/pagination.component';
+import { MovieListComponent } from '../../../shared/components/movie-list/movie-list.component';
 
 @Component({
   selector: 'app-search-results',
-  imports: [MatProgressSpinnerModule, MovieCardComponent, PaginationComponent],
+  imports: [MovieListComponent, PaginationComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss',
 })
 export class SearchResultsComponent {
-  private readonly router = inject(Router);
   readonly isLoading = input<boolean | null>(null);
   readonly searchResults = input<Movie[]>([]);
   readonly totalResults = input(0);
@@ -22,16 +19,6 @@ export class SearchResultsComponent {
   readonly pageSize = input(20);
   readonly pageSizeOptions = input<number[]>([20, 40, 60, 100]);
   readonly pageChange = output<PageEvent>();
-
-  openMovieDetails(movieId: number): void {
-    // Navigate to /movie/:id - SearchComponent will detect this and open the dialog
-    this.router.navigate(['/movie', movieId]);
-  }
-
-  handleKeydown(event: KeyboardEvent, movieId: number): void {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      this.openMovieDetails(movieId);
-    }
-  }
+  readonly selectedMovieIds = input<Set<number>>(new Set());
+  readonly movieSelectionToggle = output<Movie>();
 }

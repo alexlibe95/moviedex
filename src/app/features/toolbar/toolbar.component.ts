@@ -33,4 +33,8 @@ export class ToolbarComponent {
   goBack(): void {
     this.router.navigate(['/']);
   }
+
+  goToCollections(): void {
+    this.router.navigate(['/collections']);
+  }
 }

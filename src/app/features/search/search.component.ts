@@ -61,8 +61,12 @@ export class SearchComponent implements OnInit, OnDestroy {
     return movies.filter((m) => ids.has(m.id));
   });
 
-  // Scroll state - simplified to always show form to avoid scroll performance issues
+  // Scroll state
   readonly isFormVisible = signal(true);
+  private lastScrollTop = 0;
+  private readonly scrollThreshold = 10;
+  private scrollAnimationFrame: number | null = null;
+  private scrollHandler: ((event: Event) => void) | null = null;
 
   constructor() {
     // Clear selection when search results change (new search or page change)
@@ -93,12 +97,57 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.pageSize.set(savedState.pageSize);
       this.isLoading.set(savedState.isLoading);
     }
+
+    // Add scroll listener to main-content container
+    this.scrollHandler = this.handleScroll.bind(this);
+    setTimeout(() => {
+      const scrollContainer = document.querySelector('.main-content');
+      if (scrollContainer && this.scrollHandler) {
+        scrollContainer.addEventListener('scroll', this.scrollHandler, { passive: true });
+      }
+    }, 0);
+  }
+
+  private handleScroll(event: Event): void {
+    // Throttle scroll events using requestAnimationFrame for smooth performance
+    if (this.scrollAnimationFrame !== null) {
+      return;
+    }
+
+    this.scrollAnimationFrame = requestAnimationFrame(() => {
+      const target = event.target as HTMLElement;
+      const scrollTop = target.scrollTop;
+
+      // Show form when at the top
+      if (scrollTop <= this.scrollThreshold) {
+        this.isFormVisible.set(true);
+      } else {
+        // Hide form when scrolling down, show when scrolling up
+        const scrollingDown = scrollTop > this.lastScrollTop;
+        if (Math.abs(scrollTop - this.lastScrollTop) > this.scrollThreshold) {
+          this.isFormVisible.set(!scrollingDown);
+        }
+      }
+
+      this.lastScrollTop = scrollTop;
+      this.scrollAnimationFrame = null;
+    });
   }
 
   ngOnDestroy(): void {
+    // Remove scroll listener
+    const scrollContainer = document.querySelector('.main-content');
+    if (scrollContainer && this.scrollHandler) {
+      scrollContainer.removeEventListener('scroll', this.scrollHandler);
+    }
+
+    if (this.scrollAnimationFrame !== null) {
+      cancelAnimationFrame(this.scrollAnimationFrame);
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
+
 
   onSearch(page = 1): void {
     // Mark control as touched to show validation errors

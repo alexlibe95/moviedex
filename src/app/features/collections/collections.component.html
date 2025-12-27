@@ -20,7 +20,14 @@
   } @else {
     <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
       @for (collection of collections(); track collection.id) {
-        <mat-card class="flex flex-col h-full">
+        <mat-card
+          class="flex flex-col h-full cursor-pointer"
+          (click)="viewCollection(collection.id)"
+          (keydown)="handleKeydown($event, collection.id)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'View collection ' + collection.name"
+        >
           <mat-card-header>
             <mat-card-title>{{ collection.name }}</mat-card-title>
             <mat-card-subtitle>
@@ -36,7 +43,13 @@
             </p>
           </mat-card-content>
           <mat-card-actions align="end">
-            <button mat-button (click)="deleteCollection(collection)" type="button" color="warn">
+            <button
+              mat-button
+              (click)="deleteCollection($event, collection)"
+              type="button"
+              color="warn"
+              (keydown)="$event.stopPropagation()"
+            >
               <mat-icon>delete</mat-icon>
               Delete
             </button>

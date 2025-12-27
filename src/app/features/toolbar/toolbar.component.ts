@@ -26,12 +26,28 @@ export class ToolbarComponent {
     const url = this.router.url;
     // Get the path without query parameters
     const path = url.split('?')[0];
-    // Show back button only when on collections route
-    return path.startsWith('/collections');
+    // Show back button when not on root route
+    return path !== '/' && path !== '';
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    const url = this.router.url;
+    const path = url.split('?')[0];
+    
+    // Navigate back based on current route
+    if (path.startsWith('/collections/')) {
+      // From collection details, go back to collections list
+      this.router.navigate(['/collections']);
+    } else if (path === '/collections') {
+      // From collections list, go back to home
+      this.router.navigate(['/']);
+    } else if (path.startsWith('/movie/')) {
+      // From movie details, go back to home
+      this.router.navigate(['/']);
+    } else {
+      // Default: go to home
+      this.router.navigate(['/']);
+    }
   }
 
   goToCollections(): void {

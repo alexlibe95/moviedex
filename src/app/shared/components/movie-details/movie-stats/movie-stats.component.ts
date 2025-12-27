@@ -1,7 +1,7 @@
 import { Component, input, computed } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 
-import { MovieDetails } from '../../../core/models/movie-details.model';
+import { MovieDetails } from '../../../../core/models/movie-details.model';
 
 @Component({
   selector: 'app-movie-stats',

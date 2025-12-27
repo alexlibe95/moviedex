@@ -1,0 +1,25 @@
+@if (isLoading()) {
+  <div class="flex justify-center items-center w-full h-full py-8">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (movies().length > 0) {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
+    @for (movie of movies(); track movie.id) {
+      <div
+        (click)="openMovieDetails(movie.id)"
+        (keydown)="handleKeydown($event, movie.id)"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="'View details for ' + movie.title"
+        class="cursor-pointer"
+      >
+        <app-movie-card [movie]="movie" />
+      </div>
+    }
+  </div>
+} @else {
+  <div class="flex justify-center items-center w-full h-full py-8">
+    <p class="text-gray-600">{{ emptyMessage() }}</p>
+  </div>
+}
+

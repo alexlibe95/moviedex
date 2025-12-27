@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -25,6 +26,7 @@ export class CollectionsComponent implements OnInit {
   private readonly collectionsService = inject(CollectionsService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   readonly collections = signal<Collection[]>([]);
 
@@ -60,7 +62,19 @@ export class CollectionsComponent implements OnInit {
     }
   }
 
-  deleteCollection(collection: Collection): void {
+  viewCollection(collectionId: string): void {
+    this.router.navigate(['/collections', collectionId]);
+  }
+
+  handleKeydown(event: KeyboardEvent, collectionId: string): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.viewCollection(collectionId);
+    }
+  }
+
+  deleteCollection(event: Event, collection: Collection): void {
+    event.stopPropagation(); // Prevent card click from firing
     if (confirm(`Are you sure you want to delete "${collection.name}"?`)) {
       const success = this.collectionsService.deleteCollection(collection.id);
       if (success) {

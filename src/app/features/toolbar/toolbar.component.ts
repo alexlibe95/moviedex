@@ -17,11 +17,9 @@ export class ToolbarComponent {
 
   constructor() {
     // Update signal on route changes
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.isRootRoute.set(this.checkIsRootRoute());
-      });
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.isRootRoute.set(this.checkIsRootRoute());
+    });
   }
 
   private checkIsRootRoute(): boolean {
@@ -36,4 +34,3 @@ export class ToolbarComponent {
     this.router.navigate(['/']);
   }
 }
-

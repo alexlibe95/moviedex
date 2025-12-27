@@ -9,12 +9,7 @@ import { PaginationComponent } from '../pagination/pagination.component';
 
 @Component({
   selector: 'app-search-results',
-  imports: [
-    MatProgressSpinnerModule,
-    RouterLink,
-    MovieCardComponent,
-    PaginationComponent,
-  ],
+  imports: [MatProgressSpinnerModule, RouterLink, MovieCardComponent, PaginationComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss',
 })
@@ -27,4 +22,3 @@ export class SearchResultsComponent {
   readonly pageSizeOptions = input<number[]>([20, 40, 60, 100]);
   readonly pageChange = output<PageEvent>();
 }
-

@@ -18,4 +18,3 @@ export class PaginationComponent {
     this.pageChange.emit(event);
   }
 }
-

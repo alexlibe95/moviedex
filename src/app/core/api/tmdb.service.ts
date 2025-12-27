@@ -5,6 +5,8 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../environment';
 import { MovieSearchResponse } from '../models/movie-search.model';
+import { MovieDetails } from '../models/movie-details.model';
+import { GuestSessionResponse } from '../models/guest-session.model';
 
 /**
  * Service for interacting with The Movie Database (TMDB) API.
@@ -88,6 +90,42 @@ export class TmdbService {
   }
 
   /**
+   * Validates that a movie ID is a positive integer.
+   * @param movieId - The movie ID to validate
+   * @throws Error if movieId is invalid
+   */
+  private validateMovieId(movieId: number): void {
+    if (!Number.isInteger(movieId) || movieId <= 0) {
+      throw new Error('Movie ID must be a positive integer');
+    }
+  }
+
+  /**
+   * Validates that a rating is within the valid range (0.5 to 10.0 in increments of 0.5).
+   * @param rating - The rating value to validate
+   * @throws Error if rating is invalid
+   */
+  private validateRating(rating: number): void {
+    if (rating < 0.5 || rating > 10.0) {
+      throw new Error('Rating must be between 0.5 and 10.0');
+    }
+    if (Math.round(rating * 2) !== rating * 2) {
+      throw new Error('Rating must be in increments of 0.5');
+    }
+  }
+
+  /**
+   * Validates that a guest session ID is not empty.
+   * @param guestSessionId - The guest session ID to validate
+   * @throws Error if guestSessionId is invalid
+   */
+  private validateGuestSessionId(guestSessionId: string): void {
+    if (!guestSessionId || guestSessionId.trim().length === 0) {
+      throw new Error('Guest session ID cannot be empty');
+    }
+  }
+
+  /**
    * Validates that a page number is valid.
    * @param page - The page number to validate
    * @throws Error if page is invalid
@@ -125,21 +163,19 @@ export class TmdbService {
         new HttpParams().set('query', query.trim()).set('page', startApiPage.toString())
       );
 
-      return this.http
-        .get<MovieSearchResponse>(`${this.apiUrl}/search/movie`, { params })
-        .pipe(
-          retry({ count: this.maxRetries, delay: this.retryDelay }),
-          catchError(this.handleError),
-          // Transform response to match requested pageSize
-          map((response) => {
-            const start = startIndex % apiPageSize;
-            const end = start + pageSize;
-            return {
-              ...response,
-              results: response.results.slice(start, end),
-            };
-          })
-        );
+      return this.http.get<MovieSearchResponse>(`${this.apiUrl}/search/movie`, { params }).pipe(
+        retry({ count: this.maxRetries, delay: this.retryDelay }),
+        catchError(this.handleError),
+        // Transform response to match requested pageSize
+        map((response) => {
+          const start = startIndex % apiPageSize;
+          const end = start + pageSize;
+          return {
+            ...response,
+            results: response.results.slice(start, end),
+          };
+        })
+      );
     }
 
     // Fetch multiple pages and combine results
@@ -149,10 +185,12 @@ export class TmdbService {
         new HttpParams().set('query', query.trim()).set('page', apiPage.toString())
       );
 
-      return this.http.get<MovieSearchResponse>(`${this.apiUrl}/search/movie`, { params }).pipe(
-        retry({ count: this.maxRetries, delay: this.retryDelay }),
-        catchError(this.handleError)
-      );
+      return this.http
+        .get<MovieSearchResponse>(`${this.apiUrl}/search/movie`, { params })
+        .pipe(
+          retry({ count: this.maxRetries, delay: this.retryDelay }),
+          catchError(this.handleError)
+        );
     });
 
     return forkJoin(requests).pipe(
@@ -170,5 +208,65 @@ export class TmdbService {
         };
       })
     );
+  }
+  /**
+   * Retrieves detailed information about a specific movie.
+   * @param movieId - The TMDB movie ID
+   * @returns Observable of MovieDetails
+   * @throws Error if movieId is invalid or API call fails
+   */
+  getMovieDetails(movieId: number): Observable<MovieDetails> {
+    this.validateMovieId(movieId);
+
+    const params = this.withApiKey();
+
+    return this.http
+      .get<MovieDetails>(`${this.apiUrl}/movie/${movieId}`, { params })
+      .pipe(
+        retry({ count: this.maxRetries, delay: this.retryDelay }),
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Creates a new guest session for rating movies without user authentication.
+   * @returns Observable of GuestSessionResponse
+   * @throws Error if API call fails
+   */
+  createGuestSession(): Observable<GuestSessionResponse> {
+    const params = this.withApiKey();
+
+    return this.http
+      .get<GuestSessionResponse>(`${this.apiUrl}/authentication/guest_session/new`, { params })
+      .pipe(
+        retry({ count: this.maxRetries, delay: this.retryDelay }),
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Rates a movie using a guest session.
+   * @param movieId - The TMDB movie ID
+   * @param rating - The rating value (0.5 to 10.0 in increments of 0.5)
+   * @param guestSessionId - The guest session ID
+   * @returns Observable with success status
+   * @throws Error if any parameter is invalid or API call fails
+   */
+  rateMovie(
+    movieId: number,
+    rating: number,
+    guestSessionId: string
+  ): Observable<{ success: boolean }> {
+    this.validateMovieId(movieId);
+    this.validateRating(rating);
+    this.validateGuestSessionId(guestSessionId);
+
+    const params = this.withApiKey(new HttpParams().set('guest_session_id', guestSessionId.trim()));
+
+    return this.http
+      .post<{
+        success: boolean;
+      }>(`${this.apiUrl}/movie/${movieId}/rating`, { value: rating }, { params })
+      .pipe(catchError(this.handleError));
   }
 }

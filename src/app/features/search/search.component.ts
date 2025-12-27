@@ -32,12 +32,12 @@ export class SearchComponent implements OnInit {
   protected readonly searchControl = new FormControl('', [Validators.required]);
   readonly searchResults = signal<Movie[]>([]);
   readonly isLoading = signal<boolean | null>(null);
-  
+
   // Pagination state
   readonly totalResults = signal(0);
   readonly currentPage = signal(0);
   readonly pageSize = signal(20);
-  
+
   // Scroll state
   readonly isFormVisible = signal(true);
   private lastScrollTop = 0;
@@ -97,9 +97,9 @@ export class SearchComponent implements OnInit {
   onPageChange(event: PageEvent): void {
     const newPageSize = event.pageSize;
     const pageSizeChanged = newPageSize !== this.pageSize();
-    
+
     this.pageSize.set(newPageSize);
-    
+
     // If page size changed, reset to first page, otherwise use the selected page
     if (pageSizeChanged) {
       this.currentPage.set(0);
@@ -114,7 +114,7 @@ export class SearchComponent implements OnInit {
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
     const scrollTop = target.scrollTop;
-    
+
     // Show form when at the top
     if (scrollTop <= this.scrollThreshold) {
       this.isFormVisible.set(true);
@@ -125,7 +125,7 @@ export class SearchComponent implements OnInit {
         this.isFormVisible.set(!scrollingDown);
       }
     }
-    
+
     this.lastScrollTop = scrollTop;
   }
 }

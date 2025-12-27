@@ -4,7 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PageEvent } from '@angular/material/paginator';
 
 import { Movie } from '../../../core/models/movie.model';
-import { MovieCardComponent } from '../../../shared/components/movie-card/movie-card.component';
+import { MovieCardComponent } from './movie-card/movie-card.component';
 import { PaginationComponent } from '../pagination/pagination.component';
 
 @Component({

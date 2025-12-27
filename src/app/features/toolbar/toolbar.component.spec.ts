@@ -1,22 +1,98 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subject } from 'rxjs';
 
 import { ToolbarComponent } from './toolbar.component';
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
+  let navigationSubject: Subject<NavigationEnd>;
+  let navigateCalled = false;
+  let navigateArgs: unknown[] = [];
+
+  let mockRouter: {
+    url: string;
+    navigate: (path: unknown[]) => Promise<boolean>;
+    events: Subject<NavigationEnd>;
+  };
 
   beforeEach(async () => {
+    navigationSubject = new Subject<NavigationEnd>();
+    navigateCalled = false;
+    navigateArgs = [];
+    mockRouter = {
+      url: '/',
+      navigate: (path: unknown[]) => {
+        navigateCalled = true;
+        navigateArgs = path;
+        return Promise.resolve(true);
+      },
+      events: navigationSubject,
+    };
+
     await TestBed.configureTestingModule({
       imports: [ToolbarComponent],
+      providers: [
+        {
+          provide: Router,
+          useValue: mockRouter,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should show back button when not on root route', () => {
+    mockRouter.url = '/movie/123';
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.isRootRoute()).toBe(false);
+  });
+
+  it('should hide back button when on root route', () => {
+    mockRouter.url = '/';
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.isRootRoute()).toBe(true);
+  });
+
+  it('should navigate to root when goBack is called', () => {
+    component.goBack();
+    expect(navigateCalled).toBe(true);
+    expect(navigateArgs).toEqual(['/']);
+  });
+
+  it('should update isRootRoute signal on navigation end', () => {
+    mockRouter.url = '/';
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(component.isRootRoute()).toBe(true);
+
+    mockRouter.url = '/movie/123';
+    navigationSubject.next(new NavigationEnd(1, '/movie/123', '/movie/123'));
+    fixture.detectChanges();
+
+    expect(component.isRootRoute()).toBe(false);
+  });
+
+  it('should recognize root route with query params', () => {
+    mockRouter.url = '/?';
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(component.isRootRoute()).toBe(true);
   });
 });

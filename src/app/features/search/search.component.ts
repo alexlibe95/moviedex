@@ -8,7 +8,7 @@ import { PageEvent } from '@angular/material/paginator';
 
 import { TmdbService } from '../../core/api/tmdb.service';
 import { Movie } from '../../core/models/movie.model';
-import { AlphanumericMinLengthDirective } from '../../shared/directives/alphanumeric-min-length.directive';
+import { AlphanumericMinLengthDirective } from '../../core/directives/alphanumeric-min-length.directive';
 import { SearchResultsComponent } from './search-results/search-results.component';
 
 @Component({

@@ -11,17 +11,29 @@ const path = require('path');
 const envPath = path.join(__dirname, '..', 'environment.ts');
 const envExamplePath = path.join(__dirname, '..', 'environment.example.ts');
 
-// Check if environment.ts already exists
-if (fs.existsSync(envPath)) {
-  console.log('✅ environment.ts already exists, skipping generation');
-  process.exit(0);
-}
-
 // Check for Netlify environment variables
 const apiKey = process.env.TMDB_API_KEY || '';
 const apiUrl = process.env.TMDB_API_URL || 'https://api.themoviedb.org/3';
 
-// If we have an API key from environment (Netlify), generate the file
+// Validate API key in production (Netlify)
+if (!apiKey && process.env.NODE_ENV === 'production') {
+  console.error('❌ ERROR: TMDB_API_KEY environment variable is not set!');
+  console.error('   Please set TMDB_API_KEY in your Netlify environment variables.');
+  process.exit(1);
+}
+
+// Check if environment.ts already exists
+if (fs.existsSync(envPath)) {
+  // In production, always regenerate from environment variables if API key is provided
+  if (process.env.NODE_ENV === 'production' && apiKey) {
+    console.log('🔄 Regenerating environment.ts from Netlify environment variables');
+  } else {
+    console.log('✅ environment.ts already exists, skipping generation');
+    process.exit(0);
+  }
+}
+
+// If we have an API key from environment (Netlify), generate/overwrite the file
 if (apiKey) {
   const envContent = `export const environment = {
     apiUrl: '${apiUrl}',
